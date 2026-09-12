@@ -1,0 +1,174 @@
+====================================================
+GUIDE D'INSTALLATION DE JARVIS (pas a pas, avec Docker)
+====================================================
+
+Ce guide part du principe que Docker n'est pas encore installe sur
+l'ordinateur. Compte environ 20-30 minutes, dont une bonne partie
+d'attente pendant les telechargements.
+
+
+ETAPE 1 : Installer Docker Desktop
+------------------------------------
+1. Aller sur : https://www.docker.com/products/docker-desktop/
+2. Cliquer sur "Download for Windows" et lancer l'installeur telecharge.
+3. Pendant l'installation, laisser les options par defaut cochees
+   (notamment "Use WSL 2 instead of Hyper-V").
+4. A la fin, redemarrer l'ordinateur si l'installeur le demande.
+5. Apres le redemarrage, lancer "Docker Desktop" (chercher dans le menu
+   Demarrer). Attendre que l'icone en bas a droite (pres de l'horloge)
+   devienne fixe/verte, avec une infobulle du type "Docker Desktop is
+   running". Ca peut prendre 1-2 minutes au premier lancement.
+
+En cas de probleme au demarrage de Docker Desktop (message d'erreur
+lie a WSL ou a la virtualisation) :
+  - Ouvrir PowerShell EN TANT QU'ADMINISTRATEUR et taper :
+        wsl --install
+    puis redemarrer l'ordinateur et relancer Docker Desktop.
+  - Si ca ne suffit pas, il faut activer la virtualisation dans le
+    BIOS/UEFI de la carte mere (option souvent nommee "Intel VT-x",
+    "AMD-V" ou "SVM Mode") - variable selon les marques, chercher le
+    nom exact du modele de PC + "activer virtualisation bios".
+
+
+ETAPE 2 : Recuperer le projet Jarvis
+------------------------------------
+Pas besoin d'installer Git : le plus simple est de telecharger le
+projet directement en ZIP.
+
+1. Aller sur : https://github.com/thom69170/jarvis2
+2. Cliquer sur le bouton vert "Code" (en haut a droite de la liste de
+   fichiers), puis sur "Download ZIP".
+3. Une fois le ZIP telecharge, l'extraire dans un dossier simple,
+   par exemple : C:\jarvis
+   (clic droit sur le fichier ZIP > "Extraire tout...")
+
+
+ETAPE 3 : Ouvrir un terminal dans le dossier du projet
+------------------------------------
+1. Ouvrir le dossier extrait (ex: C:\jarvis) dans l'Explorateur Windows.
+   Attention : si l'extraction a cree un sous-dossier du genre
+   "jarvis2-main", c'est CE sous-dossier qu'il faut ouvrir (celui qui
+   contient directement les fichiers comme "docker-compose.yml").
+2. Dans la barre d'adresse de l'Explorateur (en haut de la fenetre),
+   taper "powershell" puis appuyer sur Entree. Un terminal PowerShell
+   s'ouvre directement dans ce dossier.
+
+
+ETAPE 4 : Lancer Jarvis
+------------------------------------
+Dans le terminal PowerShell ouvert a l'etape precedente, taper :
+
+    docker compose up -d
+
+Au tout premier lancement, Docker va telecharger plusieurs "images"
+(le serveur Jarvis, Ollama, les moteurs de voix...). Ca peut prendre
+plusieurs minutes selon la connexion internet (plusieurs Go a
+telecharger). Attendre que la commande se termine et rende la main
+(le curseur clignote a nouveau, pret pour une nouvelle commande).
+
+Pour verifier que tout tourne bien :
+
+    docker compose ps
+
+Tu dois voir plusieurs lignes (server, client, ollama, kokoro, piper)
+avec un statut "Up" ou "running".
+
+
+ETAPE 5 : Telecharger le modele d'intelligence artificielle
+------------------------------------
+Jarvis a besoin d'un modele de langage pour reflechir. Toujours dans
+le meme terminal, taper :
+
+    docker compose exec ollama ollama pull llama3
+
+Ca telecharge le modele "llama3" (environ 4,7 Go, gratuit). Patienter
+jusqu'a la fin du telechargement (une barre de progression s'affiche).
+
+Cette etape n'est a faire qu'UNE SEULE FOIS (le modele reste stocke
+meme si on eteint et rallume l'ordinateur).
+
+
+ETAPE 6 : Ouvrir Jarvis
+------------------------------------
+Une fois les etapes 4 et 5 terminees, ouvrir un navigateur web
+(Chrome ou Edge recommandes) et aller sur :
+
+  - http://localhost:5173/admin
+    -> le panneau de configuration (voix, personnalite, cle API
+       optionnelle, mot d'activation, push-to-talk...)
+
+  - http://localhost:5173/jarvis
+    -> la fenetre pour parler a Jarvis et le tester
+
+  - http://localhost:5173/overlay?transparent=1
+    -> la version "visuel seul" a utiliser dans OBS (voir etape 7)
+
+
+ETAPE 7 (optionnel) : Ajouter Jarvis dans OBS
+------------------------------------
+1. Dans OBS, dans la liste des sources, cliquer sur le "+" puis
+   choisir "Source Navigateur" ("Browser Source").
+2. Lui donner un nom (ex: "Jarvis"), valider.
+3. Dans le champ URL, mettre :
+       http://localhost:5173/overlay?transparent=1
+4. Regler la largeur/hauteur souhaitees (ex: 400 x 400).
+5. Valider. L'orbe de Jarvis doit apparaitre, sur fond transparent.
+
+Astuce : ajouter "&size=300" a la fin de l'URL (apres transparent=1)
+pour agrandir ou reduire l'avatar, exemple :
+    http://localhost:5173/overlay?transparent=1&size=300
+
+
+ETAPE 8 : Arreter / relancer Jarvis
+------------------------------------
+Pour tout arreter proprement (par exemple en fin de stream) :
+
+    docker compose down
+
+Pour relancer plus tard (pas besoin de retelecharger quoi que ce
+soit, ca redemarre juste) :
+
+    docker compose up -d
+
+Ces deux commandes doivent etre lancees depuis un terminal PowerShell
+ouvert dans le dossier du projet (voir etape 3).
+
+
+EN CAS DE PROBLEME
+------------------------------------
+- "docker compose" n'est pas reconnu comme commande :
+  Docker Desktop n'est probablement pas lance. Verifier l'icone dans
+  la barre des taches (doit etre verte/fixe), sinon relancer
+  l'application "Docker Desktop" et attendre qu'elle demarre.
+
+- La page localhost:5173 ne s'affiche pas :
+  Attendre quelques secondes de plus apres "docker compose up -d" (le
+  temps que les services demarrent), puis rafraichir la page. Verifier
+  aussi avec "docker compose ps" que tout est bien "Up".
+
+- Jarvis met du temps a repondre / l'ordinateur rame :
+  Normal sans carte graphique dediee recente : le modele tourne sur le
+  processeur. Avec une carte graphique NVIDIA, les reponses sont
+  nettement plus rapides.
+
+- Un port est deja utilise (erreur "port is already allocated") :
+  Une autre application utilise deja le port 5173 ou 4000. Fermer
+  cette application, ou modifier les ports dans le fichier
+  "docker-compose.yml" (partie "ports:").
+
+
+METTRE A JOUR JARVIS PLUS TARD
+------------------------------------
+Le panneau /admin (section "Mises a jour") previent automatiquement
+quand une nouvelle version est disponible sur GitHub.
+
+Sans Git installe, le plus simple pour mettre a jour est de
+retelecharger le ZIP (etape 2), puis dans un terminal ouvert dans le
+nouveau dossier :
+
+    docker compose build
+    docker compose up -d
+
+(Le fichier de configuration server\data\settings.json et les
+modeles Ollama deja telecharges ne sont pas affectes par une mise a
+jour du code.)
