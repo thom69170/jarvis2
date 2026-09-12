@@ -1,0 +1,12 @@
+node_modules/
+.claude/
+dist/
+build/
+.env
+.env.local
+server/data/settings.json
+*.log
+*.tsbuildinfo
+.DS_Store
+tools/bark-server/venv/
+tools/bark-server/__pycache__/

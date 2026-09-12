@@ -1,0 +1,70 @@
+name: jarvis
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    environment:
+      JARVIS_SERVER_PORT: "4000"
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      KOKORO_BASE_URL: "http://kokoro:8880/v1"
+      PIPER_BASE_URL: "http://piper:5000/v1"
+      BARK_BASE_URL: "http://bark:8882/v1"
+    volumes:
+      - ./server/data:/app/data
+    ports:
+      - "4000:4000"
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - server
+
+  # LLM local et gratuit (fournisseur par défaut de Jarvis).
+  # Après le premier démarrage : docker compose exec ollama ollama pull llama3
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"
+
+  # Voix locale et gratuite (léger, CPU).
+  kokoro:
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+    ports:
+      - "8880:8880"
+
+  # Voix locale et gratuite (le plus léger/rapide, CPU).
+  piper:
+    image: kamilkrawiec/piper-openai-tts:latest
+    ports:
+      - "5001:5000"
+    volumes:
+      - piper-data:/data
+
+  # Voix locale via Bark — optionnel, GPU fortement conseillé, désactivé par
+  # défaut : `docker compose --profile bark up -d bark`
+  # Nécessite le NVIDIA Container Toolkit sur l'hôte pour utiliser le GPU.
+  bark:
+    build:
+      context: ./tools/bark-server
+    profiles: ["bark"]
+    ports:
+      - "8882:8882"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ["gpu"]
+
+volumes:
+  ollama-data:
+  piper-data:
