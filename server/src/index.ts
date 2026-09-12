@@ -4,6 +4,7 @@ import { MissingApiKeyError, generateReply } from "./chatEngine.js";
 import { loadSettings, saveSettings, toPublicSettings } from "./settingsStore.js";
 import { MissingTtsConfigError, generateSpeech } from "./ttsEngine.js";
 import { ChatMessage, Provider, TtsProvider } from "./types.js";
+import { checkForUpdate, UpdateCheckResult } from "./updateChecker.js";
 
 const app = express();
 const PORT = process.env.JARVIS_SERVER_PORT ? Number(process.env.JARVIS_SERVER_PORT) : 4000;
@@ -95,6 +96,18 @@ app.put("/api/settings", (req, res) => {
   if (body.wakeWord) {
     if (typeof body.wakeWord.enabled === "boolean") {
       settings.wakeWord.enabled = body.wakeWord.enabled;
+    }
+  }
+
+  if (body.update) {
+    if (typeof body.update.enabled === "boolean") {
+      settings.update.enabled = body.update.enabled;
+    }
+    if (typeof body.update.repo === "string") {
+      settings.update.repo = body.update.repo.trim();
+    }
+    if (typeof body.update.branch === "string" && body.update.branch.trim()) {
+      settings.update.branch = body.update.branch.trim();
     }
   }
 
@@ -205,6 +218,28 @@ app.post("/api/ptt/release", (_req, res) => {
   res.json({ ok: true, listeners: pttClients.size });
 });
 
+// Read-only update check against the public GitHub repo: never pulls or
+// restarts anything itself, just tells the admin panel whether a newer
+// commit exists on the tracked branch.
+async function runUpdateCheck(): Promise<UpdateCheckResult> {
+  const settings = loadSettings();
+  if (!settings.update.enabled) {
+    return { checked: false, updateAvailable: false, currentSha: null, latestSha: null, compareUrl: null, error: null };
+  }
+  const result = await checkForUpdate(settings.update.repo, settings.update.branch);
+  if (result.updateAvailable) {
+    console.log(
+      `[update] Nouvelle version disponible sur ${settings.update.repo}@${settings.update.branch} (actuel: ${result.currentSha?.slice(0, 7)}, dernier: ${result.latestSha?.slice(0, 7)}).`
+    );
+  }
+  return result;
+}
+
+app.get("/api/update/check", async (_req, res) => {
+  res.json(await runUpdateCheck());
+});
+
 app.listen(PORT, () => {
   console.log(`J.A.R.V.I.S server ready on http://localhost:${PORT}`);
+  runUpdateCheck().catch((error) => console.error("Erreur pendant la vérification de mise à jour:", error));
 });

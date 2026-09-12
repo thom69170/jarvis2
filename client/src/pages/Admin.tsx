@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { PublicSettings, Provider, TtsProvider, fetchSettings, updateSettings } from "../api";
+import { PublicSettings, Provider, TtsProvider, UpdateCheckResult, checkForUpdate, fetchSettings, updateSettings } from "../api";
 import { codeToGklName, formatCombo } from "../keyNames";
 
 type KeyName = "openai" | "anthropic" | "gemini" | "elevenlabs";
@@ -54,12 +54,31 @@ export default function Admin() {
   const [recordingCombo, setRecordingCombo] = useState(false);
   const [liveCombo, setLiveCombo] = useState<string[]>([]);
   const recordedKeysRef = useRef<Set<string>>(new Set());
+  const [updateCheck, setUpdateCheck] = useState<UpdateCheckResult | null>(null);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
 
   useEffect(() => {
     fetchSettings()
       .then(setSettings)
       .catch((e) => setError(e.message));
   }, []);
+
+  useEffect(() => {
+    checkForUpdate()
+      .then(setUpdateCheck)
+      .catch(() => undefined);
+  }, []);
+
+  async function handleCheckUpdate() {
+    setCheckingUpdate(true);
+    try {
+      setUpdateCheck(await checkForUpdate());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCheckingUpdate(false);
+    }
+  }
 
   useEffect(() => {
     if (!recordingCombo) return;
@@ -122,6 +141,7 @@ export default function Admin() {
         tts: settings.tts,
         ptt: settings.ptt,
         wakeWord: settings.wakeWord,
+        update: settings.update,
         apiKeys,
       });
       setSettings(saved);
@@ -147,6 +167,33 @@ export default function Admin() {
 
   return (
     <Shell>
+      {updateCheck?.updateAvailable && (
+        <div
+          style={{
+            background: "#0f2a1a",
+            border: "1px solid var(--ok)",
+            color: "var(--ok)",
+            borderRadius: 8,
+            padding: 14,
+            marginBottom: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <span>
+            🔔 Une nouvelle version de Jarvis est disponible ({updateCheck.currentSha?.slice(0, 7)} → {updateCheck.latestSha?.slice(0, 7)}).
+          </span>
+          {updateCheck.compareUrl && (
+            <a href={updateCheck.compareUrl} target="_blank" rel="noreferrer" style={{ color: "var(--ok)" }}>
+              Voir les changements ↗
+            </a>
+          )}
+        </div>
+      )}
+
       <Section title="Fournisseur IA">
         <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
           Choisis quel moteur répond dans le rôle de Jarvis. Les clés API sont{" "}
@@ -574,6 +621,60 @@ export default function Admin() {
             onChange={(e) => update({ models: { ...settings.models, gemini: e.target.value } })}
           />
         </div>
+      </Section>
+
+      <Section title="Mises à jour">
+        <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
+          Vérifie si une nouvelle version de Jarvis existe sur GitHub. Lecture
+          seule : ça ne fait jamais de <code>git pull</code> ni de
+          redémarrage tout seul — juste un signal, à toi de lancer la mise à
+          jour.
+        </p>
+        <label style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
+          <input
+            type="checkbox"
+            checked={settings.update.enabled}
+            onChange={(e) => update({ update: { ...settings.update, enabled: e.target.checked } })}
+          />
+          Vérifier automatiquement au chargement de cette page
+        </label>
+        <div style={rowStyle}>
+          <label style={{ minWidth: 160 }}>Dépôt GitHub</label>
+          <input
+            style={inputStyle}
+            placeholder="ex : ton-pseudo/jarvis"
+            value={settings.update.repo}
+            onChange={(e) => update({ update: { ...settings.update, repo: e.target.value } })}
+          />
+        </div>
+        <div style={rowStyle}>
+          <label style={{ minWidth: 160 }}>Branche</label>
+          <input
+            style={inputStyle}
+            value={settings.update.branch}
+            onChange={(e) => update({ update: { ...settings.update, branch: e.target.value } })}
+          />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 8 }}>
+          <button style={ghostButtonNeutral} onClick={handleCheckUpdate} disabled={checkingUpdate}>
+            {checkingUpdate ? "Vérification…" : "Vérifier maintenant"}
+          </button>
+          {updateCheck?.checked && !updateCheck.updateAvailable && (
+            <span style={{ color: "var(--ok)", fontSize: 13 }}>
+              ✔ À jour ({updateCheck.currentSha?.slice(0, 7)})
+            </span>
+          )}
+          {updateCheck?.error && <span style={{ color: "var(--danger)", fontSize: 13 }}>{updateCheck.error}</span>}
+        </div>
+        {updateCheck?.updateAvailable && (
+          <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 12 }}>
+            Pour mettre à jour, dans un terminal à la racine du projet :
+            <br />
+            <code>git pull</code>
+            {" — puis, si tu utilises Docker : "}
+            <code>docker compose build && docker compose up -d</code>
+          </p>
+        )}
       </Section>
 
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 8 }}>

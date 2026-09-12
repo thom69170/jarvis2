@@ -61,6 +61,19 @@ export interface WakeWordConfig {
   enabled: boolean;
 }
 
+/**
+ * Checks a public GitHub repo for commits newer than the one this server
+ * was built from (see server/src/updateChecker.ts). Read-only: only ever
+ * tells you an update exists and gives you the command to run — never
+ * pulls or restarts anything itself.
+ */
+export interface UpdateConfig {
+  enabled: boolean;
+  /** "owner/name", e.g. "thomasmercier/jarvis" */
+  repo: string;
+  branch: string;
+}
+
 export interface Settings {
   provider: Provider;
   temperature: number; // 0..1, remapped per-provider before calling the API
@@ -71,6 +84,7 @@ export interface Settings {
   tts: TtsConfig;
   ptt: PttConfig;
   wakeWord: WakeWordConfig;
+  update: UpdateConfig;
 }
 
 export interface ChatMessage {
@@ -132,5 +146,10 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   wakeWord: {
     enabled: false,
+  },
+  update: {
+    enabled: true,
+    repo: "thom69170/jarvis2",
+    branch: "main",
   },
 };

@@ -46,6 +46,11 @@ export interface PublicSettings {
   wakeWord: {
     enabled: boolean;
   };
+  update: {
+    enabled: boolean;
+    repo: string;
+    branch: string;
+  };
   apiKeys: {
     openai: KeyStatus;
     anthropic: KeyStatus;
@@ -88,6 +93,7 @@ export interface SettingsUpdate {
   };
   ptt?: Partial<PublicSettings["ptt"]>;
   wakeWord?: Partial<PublicSettings["wakeWord"]>;
+  update?: Partial<PublicSettings["update"]>;
   apiKeys?: Partial<Record<"openai" | "anthropic" | "gemini" | "elevenlabs", string>>;
   clearKeys?: Array<"openai" | "anthropic" | "gemini" | "elevenlabs">;
 }
@@ -112,6 +118,21 @@ export async function sendChat(
     body: JSON.stringify({ messages, image }),
   });
   return handle<{ reply: string; provider: Provider }>(res);
+}
+
+export interface UpdateCheckResult {
+  checked: boolean;
+  updateAvailable: boolean;
+  currentSha: string | null;
+  latestSha: string | null;
+  compareUrl: string | null;
+  error: string | null;
+}
+
+/** Read-only: asks the server to compare its build against the latest commit on GitHub. Never pulls or restarts anything. */
+export async function checkForUpdate(): Promise<UpdateCheckResult> {
+  const res = await fetch("/api/update/check");
+  return handle<UpdateCheckResult>(res);
 }
 
 /** Fetches synthesized speech audio for the given text. Throws if the server-side TTS provider fails or is unconfigured. */

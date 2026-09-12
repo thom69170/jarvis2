@@ -38,6 +38,7 @@ export function loadSettings(): Settings {
     },
     ptt: { ...DEFAULT_SETTINGS.ptt, ...parsed.ptt },
     wakeWord: { ...DEFAULT_SETTINGS.wakeWord, ...parsed.wakeWord },
+    update: { ...DEFAULT_SETTINGS.update, ...parsed.update },
   };
 }
 
@@ -63,6 +64,7 @@ export function toPublicSettings(settings: Settings) {
     tts: settings.tts,
     ptt: settings.ptt,
     wakeWord: settings.wakeWord,
+    update: settings.update,
     apiKeys: {
       openai: { set: !!settings.apiKeys.openai, preview: maskKey(settings.apiKeys.openai) },
       anthropic: { set: !!settings.apiKeys.anthropic, preview: maskKey(settings.apiKeys.anthropic) },

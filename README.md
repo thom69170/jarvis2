@@ -210,6 +210,21 @@ Premier lancement d'Ollama : `docker compose exec ollama ollama pull llama3`.
 Le [`tools/ptt-listener`](tools/ptt-listener) doit lui tourner nativement sur
 Windows, jamais dans Docker (voir plus haut).
 
+## Vérification des mises à jour
+
+Le panneau d'administration (`/admin`, section "Mises à jour") compare la
+version tournant localement au dernier commit du dépôt GitHub configuré.
+**Lecture seule** : ça ne fait jamais de `git pull` ni de redémarrage tout
+seul, juste un bandeau si une nouvelle version existe, avec la commande à
+lancer toi-même :
+
+```bash
+git pull
+docker compose build && docker compose up -d   # si tu utilises Docker
+```
+
+Fonctionne avec un dépôt public, sans configuration supplémentaire.
+
 ## Prochaines étapes possibles
 
 - Apparence définitive de Jarvis (avatar 2D/3D, Live2D, etc.).
