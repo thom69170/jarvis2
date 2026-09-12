@@ -28,17 +28,31 @@ comme source navigateur dans OBS).
   - Parle à Jarvis au micro via un **mot d'activation** ("Jarvis") ou un
     **push-to-talk** (voir plus bas).
 
-## Installation
+## Lancer avec Docker (recommandé)
 
-Prérequis : Node.js 18+.
+```bash
+docker compose up -d
+```
+
+Démarre tout d'un coup : le serveur, le client (nginx), Ollama, Kokoro et
+Piper. Bark est désactivé par défaut (GPU, opt-in) :
+`docker compose --profile bark up -d bark`.
+Premier lancement d'Ollama : `docker compose exec ollama ollama pull llama3`.
+
+Ouvre ensuite :
+- `http://localhost:5173/admin` pour configurer Jarvis
+- `http://localhost:5173/jarvis` pour la fenêtre à afficher pendant le live
+
+Le [`tools/ptt-listener`](tools/ptt-listener) doit lui tourner nativement sur
+Windows, jamais dans Docker (voir plus bas).
+
+## Mode développement (sans Docker)
+
+Utile pour modifier le code avec rechargement à chaud, plutôt que de
+reconstruire l'image Docker à chaque changement. Prérequis : Node.js 18+.
 
 ```bash
 npm install
-```
-
-## Lancer en développement
-
-```bash
 npm run dev
 ```
 
@@ -46,9 +60,12 @@ Cela démarre :
 - le serveur backend sur `http://localhost:4000`
 - le frontend sur `http://localhost:5173`
 
-Ouvre ensuite :
-- `http://localhost:5173/admin` pour configurer Jarvis
-- `http://localhost:5173/jarvis` pour la fenêtre à afficher pendant le live
+Les mêmes URLs `/admin` et `/jarvis` qu'en Docker fonctionnent. En revanche,
+Ollama/Kokoro/Piper ne sont pas lancés automatiquement dans ce mode : soit tu
+les fais tourner nativement (voir ci-dessous), soit tu gardes leurs
+conteneurs Docker actifs (`docker compose up -d ollama kokoro piper`) pendant
+que le serveur/client tournent en local — les URLs par défaut
+(`localhost:11434`, `:8880`, `:5001`) fonctionnent dans les deux cas.
 
 ## Utiliser Ollama (sans clé API)
 
@@ -197,18 +214,6 @@ npm start
 Le serveur backend se lance alors seul ; sers le dossier `client/dist`
 généré avec le serveur statique de ton choix (ou ajoute un serveur statique
 dans `server/src/index.ts` si tu veux tout servir depuis un seul process).
-
-## Lancer avec Docker
-
-```bash
-docker compose up -d
-```
-
-Démarre le serveur, le client (nginx), Ollama, Kokoro et Piper. Bark est
-désactivé par défaut (GPU, opt-in) : `docker compose --profile bark up -d bark`.
-Premier lancement d'Ollama : `docker compose exec ollama ollama pull llama3`.
-Le [`tools/ptt-listener`](tools/ptt-listener) doit lui tourner nativement sur
-Windows, jamais dans Docker (voir plus haut).
 
 ## Vérification des mises à jour
 
