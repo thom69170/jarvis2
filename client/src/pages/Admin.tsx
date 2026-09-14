@@ -668,7 +668,10 @@ export default function Admin() {
         </div>
         {updateCheck?.updateAvailable && (
           <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 12 }}>
-            Pour mettre à jour, dans un terminal à la racine du projet :
+            Pour mettre à jour : double-clique sur <code>update.bat</code> à la
+            racine du projet (télécharge et reconstruit tout seul, pas besoin
+            de Git). Avec Git installé, tu peux aussi faire ça à la main dans
+            un terminal à la racine du projet :
             <br />
             <code>git pull</code>
             {" — puis, si tu utilises Docker : "}

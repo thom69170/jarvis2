@@ -230,6 +230,13 @@ docker compose build && docker compose up -d   # si tu utilises Docker
 
 Fonctionne avec un dépôt public, sans configuration supplémentaire.
 
+Pas Git installé ? Double-clique sur [`update.bat`](update.bat) à la racine
+du projet : il télécharge le ZIP de la dernière version depuis GitHub,
+remplace les fichiers du code, puis relance `docker compose build` et
+`docker compose up -d` tout seul — sans rien taper. Ta config
+(`server/data/settings.json`) et les modèles Ollama déjà téléchargés ne sont
+jamais touchés.
+
 ## Prochaines étapes possibles
 
 - Apparence définitive de Jarvis (avatar 2D/3D, Live2D, etc.).

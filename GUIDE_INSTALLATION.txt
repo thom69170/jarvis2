@@ -162,13 +162,24 @@ METTRE A JOUR JARVIS PLUS TARD
 Le panneau /admin (section "Mises a jour") previent automatiquement
 quand une nouvelle version est disponible sur GitHub.
 
-Sans Git installe, le plus simple pour mettre a jour est de
-retelecharger le ZIP (etape 2), puis dans un terminal ouvert dans le
-nouveau dossier :
+Pour mettre a jour, le plus simple (pas besoin de Git) : double-cliquer
+sur le fichier "update.bat" a la racine du dossier du projet. Une
+fenetre noire s'ouvre et fait tout automatiquement : telechargement de
+la derniere version depuis GitHub, remplacement des fichiers, puis
+reconstruction et redemarrage de Docker. Ca prend quelques minutes
+(surtout la reconstruction Docker). Attendre le message "Mise a jour
+terminee !" avant de fermer la fenetre.
+
+Si "update.bat" ne fonctionne pas (Windows peut afficher un
+avertissement "Windows a protege votre PC" pour un script telecharge -
+cliquer sur "Informations complementaires" puis "Executer quand
+meme"), la methode manuelle marche toujours :
+retelecharger le ZIP (etape 2), extraire par-dessus le dossier
+existant, puis dans un terminal ouvert dans ce dossier :
 
     docker compose build
     docker compose up -d
 
 (Le fichier de configuration server\data\settings.json et les
-modeles Ollama deja telecharges ne sont pas affectes par une mise a
-jour du code.)
+modeles Ollama deja telecharges ne sont jamais affectes par une mise a
+jour du code, qu'elle soit faite via update.bat ou a la main.)
