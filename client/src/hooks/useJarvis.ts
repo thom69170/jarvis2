@@ -43,6 +43,8 @@ export function useJarvis() {
   const wakeRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const wakeActiveRef = useRef(false);
   const wakeFatalErrorRef = useRef(false);
+  const wakeRestartTimerRef = useRef<number | null>(null);
+  const wakeRetryDelayRef = useRef(300);
   const orbStateRef = useRef<OrbState>("idle");
   const wakeWordEnabledRef = useRef(false);
   const messagesRef = useRef<ChatMessage[]>([]);
@@ -296,26 +298,43 @@ export function useJarvis() {
       if (event?.error === "not-allowed" || event?.error === "service-not-allowed") {
         wakeFatalErrorRef.current = true;
         setErrorMsg("Micro refusé pour le mot d'activation : autorise-le dans les réglages du navigateur.");
+      } else if (event?.error === "audio-capture") {
+        setErrorMsg("Micro indisponible pour le mot d'activation (probablement utilisé par une autre application) — nouvelle tentative automatique dès qu'il se libère.");
       } else if (event?.error && event.error !== "no-speech" && event.error !== "aborted") {
         setErrorMsg(`Erreur de reconnaissance vocale (mot d'activation) : ${event.error}`);
       }
     };
     r.onstart = () => {
       setWakeStatus("listening");
+      wakeRetryDelayRef.current = 300;
     };
     r.onend = () => {
       wakeActiveRef.current = false;
       setWakeStatus("stopped");
-      // Chrome/Edge stop continuous recognition on their own after a while;
-      // restart automatically as long as we're still supposed to be scanning
-      // (unless permission was hard-denied — retrying would just loop).
+      if (wakeRestartTimerRef.current !== null) {
+        window.clearTimeout(wakeRestartTimerRef.current);
+        wakeRestartTimerRef.current = null;
+      }
+      // Chrome/Edge stop continuous recognition on their own after a while
+      // (and also throw "audio-capture" errors in a tight loop while the mic
+      // is held by another app). Restarting `start()` synchronously right
+      // here tends to wedge the recognition instance permanently in that
+      // case, so we restart after a short delay instead — with backoff while
+      // failures keep happening — as long as we're still supposed to be
+      // scanning (unless permission was hard-denied, where retrying would
+      // just loop forever).
       if (wakeWordEnabledRef.current && orbStateRef.current === "idle" && !wakeFatalErrorRef.current) {
-        try {
-          r.start();
-          wakeActiveRef.current = true;
-        } catch {
-          // ignore
-        }
+        const delay = wakeRetryDelayRef.current;
+        wakeRetryDelayRef.current = Math.min(delay * 2, 5000);
+        wakeRestartTimerRef.current = window.setTimeout(() => {
+          wakeRestartTimerRef.current = null;
+          try {
+            r.start();
+            wakeActiveRef.current = true;
+          } catch {
+            // ignore
+          }
+        }, delay);
       }
     };
     wakeRecognitionRef.current = r;
@@ -329,6 +348,10 @@ export function useJarvis() {
     // once permission is actually granted since that alone doesn't re-run
     // this effect.
     if (!wakeWord.enabled || !micGranted) {
+      if (wakeRestartTimerRef.current !== null) {
+        window.clearTimeout(wakeRestartTimerRef.current);
+        wakeRestartTimerRef.current = null;
+      }
       if (wakeRecognitionRef.current) {
         wakeRecognitionRef.current.onend = null;
         wakeRecognitionRef.current.stop();
