@@ -1,0 +1,15 @@
+## Override optionnel : accélère Ollama avec le GPU NVIDIA de l'hôte.
+## Necessite le NVIDIA Container Toolkit installe sur l'hôte (voir README).
+## Usage :
+##   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+## (ou mets COMPOSE_FILE=docker-compose.yml;docker-compose.gpu.yml dans un
+## fichier .env local pour que "docker compose ..." l'applique tout seul.)
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ["gpu"]

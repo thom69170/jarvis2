@@ -74,6 +74,30 @@ que le serveur/client tournent en local — les URLs par défaut
 3. Dans le panneau d'administration, sélectionner "Ollama" comme
    fournisseur (c'est le choix par défaut).
 
+Avec Docker, Ollama tourne sur CPU par défaut (fonctionne sur n'importe
+quelle machine, mais plus lent : plusieurs secondes par réponse). Si la
+machine a une carte graphique **NVIDIA** et le [NVIDIA Container
+Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+installé, active l'accélération GPU (bien plus rapide, sous la seconde une
+fois le modèle chargé en mémoire) avec :
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+```
+
+Pour que `docker compose up -d` (sans les `-f`) l'utilise automatiquement à
+chaque fois sur cette machine, crée un fichier `.env` à la racine du projet
+(ignoré par git, propre à chaque machine) contenant :
+
+```
+COMPOSE_FILE=docker-compose.yml;docker-compose.gpu.yml
+```
+
+Le premier message après un démarrage ou 30 minutes d'inactivité prend
+quand même ~10 à 40 secondes le temps de charger le modèle en mémoire GPU
+(réglable via `OLLAMA_KEEP_ALIVE` dans `docker-compose.yml`) ; tous les
+messages suivants sont quasi instantanés tant que tu continues à discuter.
+
 ## Utiliser une clé API (OpenAI / Claude / Gemini)
 
 Dans le panneau d'administration, chaque clé a un lien direct pour la
