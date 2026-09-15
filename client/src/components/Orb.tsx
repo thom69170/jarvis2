@@ -1,5 +1,7 @@
 export type OrbState = "idle" | "thinking" | "speaking" | "listening" | "error";
 
+const JARVIS_COLOR = "#450046";
+
 interface FaceConfig {
   color: string;
   eyeTilt: number; // degrees; mirrored on the other eye
@@ -14,7 +16,7 @@ interface FaceConfig {
 
 const FACE_STATES: Record<OrbState, FaceConfig> = {
   idle: {
-    color: "var(--cyan)",
+    color: JARVIS_COLOR,
     eyeTilt: 6,
     eyeHeightScale: 1,
     mouthWidthScale: 1,
@@ -47,7 +49,7 @@ const FACE_STATES: Record<OrbState, FaceConfig> = {
     glitch: false,
   },
   speaking: {
-    color: "var(--cyan)",
+    color: JARVIS_COLOR,
     eyeTilt: 4,
     eyeHeightScale: 1,
     mouthWidthScale: 0.9,

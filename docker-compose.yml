@@ -32,10 +32,10 @@ services:
   ollama:
     image: ollama/ollama:latest
     environment:
-      # Garde le modèle chargé en mémoire 30 min après la dernière requête
+      # Garde le modèle chargé en mémoire 2h après la dernière requête
       # au lieu de le décharger après 5 min (par défaut) et devoir le
       # recharger à la prochaine question.
-      OLLAMA_KEEP_ALIVE: "30m"
+      OLLAMA_KEEP_ALIVE: "2h"
     volumes:
       - ollama-data:/root/.ollama
     ports:

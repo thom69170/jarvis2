@@ -93,7 +93,7 @@ chaque fois sur cette machine, crée un fichier `.env` à la racine du projet
 COMPOSE_FILE=docker-compose.yml;docker-compose.gpu.yml
 ```
 
-Le premier message après un démarrage ou 30 minutes d'inactivité prend
+Le premier message après un démarrage ou 2 heures d'inactivité prend
 quand même ~10 à 40 secondes le temps de charger le modèle en mémoire GPU
 (réglable via `OLLAMA_KEEP_ALIVE` dans `docker-compose.yml`) ; tous les
 messages suivants sont quasi instantanés tant que tu continues à discuter.
