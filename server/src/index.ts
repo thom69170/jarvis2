@@ -97,6 +97,9 @@ app.put("/api/settings", (req, res) => {
     if (typeof body.wakeWord.enabled === "boolean") {
       settings.wakeWord.enabled = body.wakeWord.enabled;
     }
+    if (typeof body.wakeWord.phrase === "string") {
+      settings.wakeWord.phrase = body.wakeWord.phrase;
+    }
   }
 
   if (body.update) {
