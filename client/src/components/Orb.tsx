@@ -77,6 +77,10 @@ const FACE_STATES: Record<OrbState, FaceConfig> = {
  * minimal glowing face. Expression + color communicate state on their own
  * (no text), driven entirely by FACE_STATES above.
  */
+function glow(color: string) {
+  return `0 0 16px ${color}, 0 0 36px ${color}, 0 0 70px ${color}, 0 0 110px ${color}99`;
+}
+
 export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
   const face = FACE_STATES[state];
   const idle = state === "idle";
@@ -171,7 +175,8 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
                   height: eyeH,
                   borderRadius: eyeH / 2,
                   background: face.color,
-                  boxShadow: `0 0 12px ${face.color}, 0 0 30px ${face.color}, 0 0 60px ${face.color}66`,
+                  boxShadow: glow(face.color),
+                  filter: "brightness(1.6) saturate(1.3)",
                   transform: `rotate(${-face.eyeTilt}deg)`,
                   transition: "all 0.25s ease",
                 }}
@@ -183,7 +188,8 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
                   height: eyeH,
                   borderRadius: eyeH / 2,
                   background: face.color,
-                  boxShadow: `0 0 12px ${face.color}, 0 0 30px ${face.color}, 0 0 60px ${face.color}66`,
+                  boxShadow: glow(face.color),
+                  filter: "brightness(1.6) saturate(1.3)",
                   transform: `rotate(${face.eyeTilt}deg)`,
                   transition: "all 0.25s ease",
                 }}
@@ -196,7 +202,8 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
                 height: mouthH,
                 borderRadius: face.mouthRadius,
                 background: face.color,
-                boxShadow: `0 0 12px ${face.color}, 0 0 30px ${face.color}, 0 0 50px ${face.color}55`,
+                boxShadow: glow(face.color),
+                filter: "brightness(1.6) saturate(1.3)",
                 transition: "all 0.25s ease",
               }}
             />
@@ -214,7 +221,8 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
             height: size * 0.02,
             borderRadius: "50%",
             background: face.color,
-            boxShadow: `0 0 6px ${face.color}, 0 0 12px ${face.color}`,
+            filter: "brightness(1.6) saturate(1.3)",
+            boxShadow: `0 0 8px ${face.color}, 0 0 18px ${face.color}, 0 0 30px ${face.color}99`,
           }}
         />
       </div>
