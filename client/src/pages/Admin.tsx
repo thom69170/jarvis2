@@ -49,9 +49,18 @@ const KOKORO_FRENCH_VOICES = [{ id: "ff_siwis", label: "Siwis (voix féminine fr
 const PIPER_FRENCH_VOICES = [
   { id: "fr_FR-siwis-medium", label: "Siwis — qualité moyenne (recommandé, féminine)" },
   { id: "fr_FR-siwis-low", label: "Siwis — qualité basse (plus rapide, féminine)" },
+  { id: "fr_FR-tom-medium", label: "Tom — qualité moyenne (masculine, ~130 Hz)" },
   { id: "fr_FR-gilles-low", label: "Gilles — qualité basse (masculine)" },
+  { id: "fr_FR-upmc-medium", label: "UPMC — 2 locuteurs, 1 masculin + 1 féminin (choisir ci-dessous)" },
   { id: "fr_FR-mls-medium", label: "MLS — 125 locuteurs dont plusieurs masculins (choisir ci-dessous)" },
   { id: "fr_FR-mls_1840-low", label: "MLS 1840 — qualité basse" },
+];
+
+// UPMC (2 locuteurs) : genre identifie par mesure de hauteur de voix, comme
+// pour le modele MLS ci-dessus.
+const PIPER_UPMC_SPEAKERS = [
+  { id: 1, label: "Locuteur 1 (masculin, ~126 Hz)" },
+  { id: 0, label: "Locuteur 0 (féminin, ~221 Hz)" },
 ];
 
 // Locuteurs du modele multi-voix MLS identifies par mesure de hauteur de
@@ -520,6 +529,24 @@ export default function Admin() {
                   }
                 >
                   {PIPER_MLS_SPEAKERS.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {settings.tts.piper.voice === "fr_FR-upmc-medium" && (
+              <div style={rowStyle}>
+                <label style={{ minWidth: 160 }}>Locuteur</label>
+                <select
+                  style={inputStyle}
+                  value={settings.tts.piper.speaker ?? 1}
+                  onChange={(e) =>
+                    update({ tts: { ...settings.tts, piper: { ...settings.tts.piper, speaker: Number(e.target.value) } } })
+                  }
+                >
+                  {PIPER_UPMC_SPEAKERS.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.label}
                     </option>
