@@ -79,6 +79,7 @@ const FACE_STATES: Record<OrbState, FaceConfig> = {
  */
 export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
   const face = FACE_STATES[state];
+  const idle = state === "idle";
   const screenW = size * 0.86;
   const screenH = screenW * 0.82;
   const eyeW = screenW * 0.24;
@@ -88,6 +89,7 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
 
   return (
     <div
+      className={idle ? "jarvis-idle-bob" : undefined}
       style={{
         width: size,
         position: "relative",
@@ -101,6 +103,7 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
         width={size * 0.5}
         height={size * 0.22}
         viewBox="0 0 100 44"
+        className={idle ? "jarvis-idle-antenna" : undefined}
         style={{ marginBottom: -size * 0.03 }}
       >
         <line x1="50" y1="44" x2="20" y2="2" stroke="#4a4a52" strokeWidth="3" strokeLinecap="round" />
@@ -160,7 +163,7 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
 
           {/* Face */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: screenH * 0.1 }}>
-            <div style={{ display: "flex", gap: screenW * 0.08 }}>
+            <div className={idle ? "jarvis-idle-look" : undefined} style={{ display: "flex", gap: screenW * 0.08 }}>
               <div
                 className={face.blink ? "jarvis-blink" : undefined}
                 style={{
@@ -187,7 +190,7 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
               />
             </div>
             <div
-              className={face.talk ? "jarvis-talk" : undefined}
+              className={face.talk ? "jarvis-talk" : idle ? "jarvis-idle-mouth" : undefined}
               style={{
                 width: mouthW,
                 height: mouthH,
@@ -202,6 +205,7 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
 
         {/* Power LED */}
         <div
+          className={idle ? "jarvis-idle-led" : undefined}
           style={{
             position: "absolute",
             bottom: size * 0.02,
@@ -252,6 +256,47 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
         }
         .jarvis-face-glitch {
           animation: jarvis-crt-flicker 6s ease-in-out infinite, jarvis-face-glitch-kf 0.4s steps(2) infinite;
+        }
+        @keyframes jarvis-idle-bob-kf {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
+        }
+        .jarvis-idle-bob {
+          animation: jarvis-idle-bob-kf 4s ease-in-out infinite;
+        }
+        @keyframes jarvis-idle-antenna-kf {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(-3deg); }
+          75% { transform: rotate(3deg); }
+        }
+        .jarvis-idle-antenna {
+          animation: jarvis-idle-antenna-kf 4s ease-in-out infinite;
+          transform-origin: 50% 100%;
+        }
+        @keyframes jarvis-idle-look-kf {
+          0%, 15% { transform: translateX(0); }
+          22%, 32% { transform: translateX(-6px); }
+          40%, 58% { transform: translateX(0); }
+          65%, 75% { transform: translateX(6px); }
+          83%, 100% { transform: translateX(0); }
+        }
+        .jarvis-idle-look {
+          animation: jarvis-idle-look-kf 9s ease-in-out infinite;
+        }
+        @keyframes jarvis-idle-mouth-kf {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.04, 0.85); }
+        }
+        .jarvis-idle-mouth {
+          animation: jarvis-idle-mouth-kf 3.2s ease-in-out infinite;
+          transform-origin: center;
+        }
+        @keyframes jarvis-idle-led-kf {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.35; }
+        }
+        .jarvis-idle-led {
+          animation: jarvis-idle-led-kf 2.4s ease-in-out infinite;
         }
       `}</style>
     </div>
