@@ -47,6 +47,7 @@ export interface PublicSettings {
   };
   wakeWord: {
     enabled: boolean;
+    phrase: string;
   };
   update: {
     enabled: boolean;

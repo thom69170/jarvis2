@@ -654,19 +654,37 @@ export default function Admin() {
         )}
       </Section>
 
-      <Section title="Mot d'activation (dire « Jarvis »)">
+      <Section title={`Mot d'activation (dire « ${settings.wakeWord.phrase || "Jarvis"} »)`}>
         <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
-          Dis « Jarvis » pour qu'il t'écoute automatiquement, sans toucher au
-          clavier. Tourne <strong>entièrement dans le navigateur</strong>{" "}
-          (aucun programme séparé à installer, aucun risque de blocage
-          Windows) via la reconnaissance vocale intégrée — l'onglet Jarvis
-          doit juste rester ouvert (il peut rester en arrière-plan).
+          Dis le mot choisi ci-dessous pour que Jarvis t'écoute
+          automatiquement, sans toucher au clavier. Tourne{" "}
+          <strong>entièrement dans le navigateur</strong> (aucun programme
+          séparé à installer, aucun risque de blocage Windows) via la
+          reconnaissance vocale intégrée — l'onglet Jarvis doit juste rester
+          ouvert (il peut rester en arrière-plan).
         </p>
         <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: -6 }}>
           Contrepartie : contrairement au push-to-talk, l'audio transite par
           le service de reconnaissance vocale du navigateur (Google pour
           Chrome/Edge) tant que l'écoute est active, pas seulement le temps
           d'une commande.
+        </p>
+        <div style={rowStyle}>
+          <label style={{ minWidth: 160 }}>Mot ou phrase à dire</label>
+          <input
+            style={inputStyle}
+            placeholder="ex : Jarvis"
+            value={settings.wakeWord.phrase}
+            onChange={(e) => update({ wakeWord: { ...settings.wakeWord, phrase: e.target.value } })}
+          />
+        </div>
+        <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 4 }}>
+          Choisis un mot pas trop courant dans une conversation normale —
+          sinon Jarvis va se déclencher tout seul par erreur. Par exemple,
+          <strong> « quelqu'un »</strong> techniquement ça marche, mais c'est
+          un très mauvais choix : ce mot revient sans arrêt dans une phrase
+          normale. Préfère un prénom ou un mot inhabituel (« Jarvis »,
+          « Ordinateur »...).
         </p>
         <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <input

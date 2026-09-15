@@ -30,7 +30,7 @@ export function useJarvis() {
   const [voiceName, setVoiceName] = useState<string>("");
   const [ttsProvider, setTtsProvider] = useState<PublicSettings["tts"]["provider"]>("browser");
   const [ptt, setPtt] = useState<PublicSettings["ptt"]>({ enabled: false, combo: [] });
-  const [wakeWord, setWakeWord] = useState<PublicSettings["wakeWord"]>({ enabled: false });
+  const [wakeWord, setWakeWord] = useState<PublicSettings["wakeWord"]>({ enabled: false, phrase: "jarvis" });
   const [micGranted, setMicGranted] = useState(false);
   const [wakeStatus, setWakeStatus] = useState<"stopped" | "listening">("stopped");
   const [wakeTranscript, setWakeTranscript] = useState("");
@@ -45,6 +45,7 @@ export function useJarvis() {
   const wakeFatalErrorRef = useRef(false);
   const wakeRestartTimerRef = useRef<number | null>(null);
   const wakeRetryDelayRef = useRef(300);
+  const wakeRegexRef = useRef<RegExp>(/\bjarvis\b/i);
   const orbStateRef = useRef<OrbState>("idle");
   const wakeWordEnabledRef = useRef(false);
   const messagesRef = useRef<ChatMessage[]>([]);
@@ -57,6 +58,16 @@ export function useJarvis() {
   useEffect(() => {
     wakeWordEnabledRef.current = wakeWord.enabled;
   }, [wakeWord.enabled]);
+
+  useEffect(() => {
+    const phrase = (wakeWord.phrase || "jarvis").trim();
+    if (!phrase) {
+      wakeRegexRef.current = /(?!)/; // ne matche jamais si la phrase est vide
+      return;
+    }
+    const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+    wakeRegexRef.current = new RegExp(`\\b${escaped}\\b`, "i");
+  }, [wakeWord.phrase]);
 
   useEffect(() => {
     fetchSettings()
@@ -287,7 +298,7 @@ export function useJarvis() {
       const results = event.results;
       const transcript: string = results?.[results.length - 1]?.[0]?.transcript ?? "";
       setWakeTranscript(transcript);
-      if (/\bjarvis\b/i.test(transcript)) {
+      if (wakeRegexRef.current.test(transcript)) {
         r.stop();
         beginVoiceCapture();
       }

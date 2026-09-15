@@ -126,7 +126,7 @@ export default function Jarvis() {
         <div style={{ fontSize: 13, color: "var(--text-dim)", margin: 0, textAlign: "center" }}>
           <p style={{ margin: 0 }}>
             {wakeStatus === "listening" ? "🎙️" : "⏸️"} Mot d'activation «
-            Jarvis » : {wakeStatus === "listening" ? "en écoute" : "arrêté"}
+            {wakeWord.phrase || "Jarvis"} » : {wakeStatus === "listening" ? "en écoute" : "arrêté"}
           </p>
           {wakeTranscript && (
             <p style={{ margin: "2px 0 0", fontStyle: "italic", opacity: 0.7 }}>

@@ -55,12 +55,15 @@ export interface PttConfig {
 }
 
 /**
- * Wake-word ("dis « Jarvis »"), detected entirely client-side via a
- * continuous browser SpeechRecognition instance (see client/src/pages/Jarvis.tsx) —
- * no native helper, no key, nothing server-side beyond this toggle.
+ * Wake-word ("dis « Jarvis »" par defaut, personnalisable via `phrase`),
+ * detected entirely client-side via a continuous browser SpeechRecognition
+ * instance (see client/src/hooks/useJarvis.ts) — no native helper, no key,
+ * nothing server-side beyond this config.
  */
 export interface WakeWordConfig {
   enabled: boolean;
+  /** Mot ou courte phrase a detecter dans la transcription (insensible a la casse). */
+  phrase: string;
 }
 
 /**
@@ -148,6 +151,7 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   wakeWord: {
     enabled: false,
+    phrase: "jarvis",
   },
   update: {
     enabled: true,
