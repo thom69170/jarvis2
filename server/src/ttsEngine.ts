@@ -51,6 +51,7 @@ export async function generateSpeech(settings: Settings, text: string): Promise<
       return generateOpenAiCompatibleSpeech({
         baseUrl: tts.piper.baseUrl,
         voice: tts.piper.voice,
+        speaker: tts.piper.speaker,
         serviceLabel: "Piper",
         text,
       });

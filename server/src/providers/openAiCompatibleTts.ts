@@ -12,6 +12,8 @@ export async function generateOpenAiCompatibleSpeech(params: {
   voice: string;
   text: string;
   serviceLabel: string;
+  /** Numeric speaker ID for a multi-speaker voice (Piper's fr_FR-mls-medium) — ignored by servers/voices that don't use it. */
+  speaker?: number;
 }): Promise<SpeechResult> {
   const url = `${params.baseUrl.replace(/\/$/, "")}/audio/speech`;
   let response: Response;
@@ -23,6 +25,7 @@ export async function generateOpenAiCompatibleSpeech(params: {
         model: params.serviceLabel.toLowerCase(),
         voice: params.voice,
         input: params.text,
+        ...(params.speaker != null ? { speaker: params.speaker } : {}),
       }),
     });
   } catch {

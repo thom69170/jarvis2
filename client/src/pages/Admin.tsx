@@ -47,11 +47,27 @@ const KOKORO_FRENCH_VOICES = [{ id: "ff_siwis", label: "Siwis (voix féminine fr
 // Piper télécharge automatiquement la voix choisie ici si elle n'est pas
 // déjà présente (voir server.py de kamilkrawiec/piper-openai-tts).
 const PIPER_FRENCH_VOICES = [
-  { id: "fr_FR-siwis-medium", label: "Siwis — qualité moyenne (recommandé)" },
-  { id: "fr_FR-siwis-low", label: "Siwis — qualité basse (plus rapide)" },
-  { id: "fr_FR-gilles-low", label: "Gilles — qualité basse (voix masculine)" },
-  { id: "fr_FR-mls-medium", label: "MLS (125 locuteurs) — qualité moyenne" },
+  { id: "fr_FR-siwis-medium", label: "Siwis — qualité moyenne (recommandé, féminine)" },
+  { id: "fr_FR-siwis-low", label: "Siwis — qualité basse (plus rapide, féminine)" },
+  { id: "fr_FR-gilles-low", label: "Gilles — qualité basse (masculine)" },
+  { id: "fr_FR-mls-medium", label: "MLS — 125 locuteurs dont plusieurs masculins (choisir ci-dessous)" },
   { id: "fr_FR-mls_1840-low", label: "MLS 1840 — qualité basse" },
+];
+
+// Locuteurs du modele multi-voix MLS identifies par mesure de hauteur de
+// voix (F0 median via autocorrelation sur un echantillon audio genere pour
+// chacun) : ~12 des 25 locuteurs sondes sonnaient nettement masculins
+// (F0 94-121 Hz) contre 0 pour Kokoro et une seule voix (Gilles) en Piper
+// mono-locuteur.
+const PIPER_MLS_SPEAKERS = [
+  { id: 5, label: "Locuteur 5 (masculin, grave)" },
+  { id: 0, label: "Locuteur 0 (masculin)" },
+  { id: 67, label: "Locuteur 67 (masculin)" },
+  { id: 98, label: "Locuteur 98 (masculin)" },
+  { id: 21, label: "Locuteur 21 (masculin)" },
+  { id: 78, label: "Locuteur 78 (masculin)" },
+  { id: 57, label: "Locuteur 57 (féminin)" },
+  { id: 88, label: "Locuteur 88 (féminin)" },
 ];
 
 export default function Admin() {
@@ -477,6 +493,24 @@ export default function Admin() {
                 ))}
               </select>
             </div>
+            {settings.tts.piper.voice === "fr_FR-mls-medium" && (
+              <div style={rowStyle}>
+                <label style={{ minWidth: 160 }}>Locuteur</label>
+                <select
+                  style={inputStyle}
+                  value={settings.tts.piper.speaker ?? 5}
+                  onChange={(e) =>
+                    update({ tts: { ...settings.tts, piper: { ...settings.tts.piper, speaker: Number(e.target.value) } } })
+                  }
+                >
+                  {PIPER_MLS_SPEAKERS.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <p style={{ color: "var(--text-dim)", fontSize: 13 }}>
               Le serveur Piper télécharge automatiquement la voix choisie si
               elle n'est déjà pas installée — le premier message avec une

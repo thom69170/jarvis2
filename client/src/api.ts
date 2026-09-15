@@ -10,6 +10,8 @@ export interface KeyStatus {
 export interface LocalTtsConfig {
   baseUrl: string;
   voice: string;
+  /** Numeric speaker ID for a multi-speaker voice (e.g. Piper's fr_FR-mls-medium, 125 speakers) — ignored otherwise. */
+  speaker?: number;
 }
 
 export interface PublicSettings {
