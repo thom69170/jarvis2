@@ -62,6 +62,14 @@ services:
     build:
       context: ./tools/bark-server
     profiles: ["bark"]
+    environment:
+      # Sans ca, les print() de server.py restent bufferises et
+      # n'apparaissent jamais dans "docker compose logs" avant un crash.
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      # Modeles Bark (~5 Go, telecharges au premier lancement) : sans ce
+      # volume, ils seraient re-telecharges a chaque redemarrage du conteneur.
+      - bark-models:/root/.cache
     ports:
       - "8882:8882"
     deploy:
@@ -74,4 +82,5 @@ services:
 
 volumes:
   ollama-data:
+  bark-models:
   piper-data:

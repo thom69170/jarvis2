@@ -24,6 +24,24 @@ import os
 
 import numpy as np
 import scipy.io.wavfile
+import torch
+
+# PyTorch 2.6+ changed torch.load()'s default weights_only to True for
+# security (blocks unpickling arbitrary objects). Bark's own code (last
+# updated well before that change) calls torch.load() without setting it,
+# so loading its official checkpoints now raises UnpicklingError. Safe here
+# since these checkpoints only ever come from Suno's official HuggingFace
+# repo (suno/bark), not from user-supplied data.
+_original_torch_load = torch.load
+
+
+def _torch_load_weights_only_false(*args, **kwargs):
+    kwargs.setdefault("weights_only", False)
+    return _original_torch_load(*args, **kwargs)
+
+
+torch.load = _torch_load_weights_only_false
+
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from fastapi import FastAPI
 from fastapi.responses import Response
