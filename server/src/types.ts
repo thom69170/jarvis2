@@ -139,7 +139,7 @@ export const DEFAULT_SETTINGS: Settings = {
     },
     bark: {
       baseUrl: process.env.BARK_BASE_URL || "http://localhost:8882/v1",
-      voice: "v2/fr_speaker_1",
+      voice: "v2/fr_speaker_7",
     },
   },
   ptt: {

@@ -70,6 +70,22 @@ const PIPER_MLS_SPEAKERS = [
   { id: 88, label: "Locuteur 88 (féminin)" },
 ];
 
+// Presets francais de Bark (v2/fr_speaker_0 a 9), genre identifie par mesure
+// de hauteur de voix (F0 median) sur un echantillon audio genere pour
+// chacun — les numeros seuls ne sont pas documentes/fiables par Suno.
+const BARK_FRENCH_VOICES = [
+  { id: "v2/fr_speaker_7", label: "Locuteur 7 — masculin, ~137 Hz (recommandé)" },
+  { id: "v2/fr_speaker_0", label: "Locuteur 0 — masculin, ~137 Hz" },
+  { id: "v2/fr_speaker_4", label: "Locuteur 4 — masculin/grave incertain, ~150 Hz" },
+  { id: "v2/fr_speaker_8", label: "Locuteur 8 — masculin/grave incertain, ~152 Hz" },
+  { id: "v2/fr_speaker_6", label: "Locuteur 6 — masculin/grave incertain, ~153 Hz" },
+  { id: "v2/fr_speaker_9", label: "Locuteur 9 — incertain, ~171 Hz" },
+  { id: "v2/fr_speaker_2", label: "Locuteur 2 — féminin, ~190 Hz" },
+  { id: "v2/fr_speaker_5", label: "Locuteur 5 — féminin, ~220 Hz" },
+  { id: "v2/fr_speaker_1", label: "Locuteur 1 — féminin, ~238 Hz" },
+  { id: "v2/fr_speaker_3", label: "Locuteur 3 — féminin aigu, ~348 Hz" },
+];
+
 export default function Admin() {
   const [settings, setSettings] = useState<PublicSettings | null>(null);
   const [keyInputs, setKeyInputs] = useState<Record<KeyName, string>>({
@@ -551,12 +567,17 @@ export default function Admin() {
             </div>
             <div style={rowStyle}>
               <label style={{ minWidth: 160 }}>Voix (preset)</label>
-              <input
+              <select
                 style={inputStyle}
-                placeholder="ex : v2/fr_speaker_1"
                 value={settings.tts.bark.voice}
                 onChange={(e) => update({ tts: { ...settings.tts, bark: { ...settings.tts.bark, voice: e.target.value } } })}
-              />
+              >
+                {BARK_FRENCH_VOICES.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </>
         )}
