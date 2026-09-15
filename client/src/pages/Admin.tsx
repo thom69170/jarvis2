@@ -40,6 +40,20 @@ const TTS_PROVIDER_INFO: Record<TtsProvider, { label: string; needsKey: boolean 
 
 const OPENAI_TTS_VOICES = ["alloy", "ash", "ballad", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer"];
 
+// Uniquement les voix françaises de chaque moteur (voir VOIX_DISPONIBLES.txt
+// pour le catalogue complet multilingue).
+const KOKORO_FRENCH_VOICES = [{ id: "ff_siwis", label: "Siwis (voix féminine française)" }];
+
+// Piper télécharge automatiquement la voix choisie ici si elle n'est pas
+// déjà présente (voir server.py de kamilkrawiec/piper-openai-tts).
+const PIPER_FRENCH_VOICES = [
+  { id: "fr_FR-siwis-medium", label: "Siwis — qualité moyenne (recommandé)" },
+  { id: "fr_FR-siwis-low", label: "Siwis — qualité basse (plus rapide)" },
+  { id: "fr_FR-gilles-low", label: "Gilles — qualité basse (voix masculine)" },
+  { id: "fr_FR-mls-medium", label: "MLS (125 locuteurs) — qualité moyenne" },
+  { id: "fr_FR-mls_1840-low", label: "MLS 1840 — qualité basse" },
+];
+
 export default function Admin() {
   const [settings, setSettings] = useState<PublicSettings | null>(null);
   const [keyInputs, setKeyInputs] = useState<Record<KeyName, string>>({
@@ -416,12 +430,17 @@ export default function Admin() {
             </div>
             <div style={rowStyle}>
               <label style={{ minWidth: 160 }}>Voix</label>
-              <input
+              <select
                 style={inputStyle}
-                placeholder="ex : ff_siwis (française), af_bella (anglaise)…"
                 value={settings.tts.kokoro.voice}
                 onChange={(e) => update({ tts: { ...settings.tts, kokoro: { ...settings.tts.kokoro, voice: e.target.value } } })}
-              />
+              >
+                {KOKORO_FRENCH_VOICES.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </>
         )}
@@ -446,13 +465,24 @@ export default function Admin() {
             </div>
             <div style={rowStyle}>
               <label style={{ minWidth: 160 }}>Voix</label>
-              <input
+              <select
                 style={inputStyle}
-                placeholder="ex : fr_FR-siwis-medium"
                 value={settings.tts.piper.voice}
                 onChange={(e) => update({ tts: { ...settings.tts, piper: { ...settings.tts.piper, voice: e.target.value } } })}
-              />
+              >
+                {PIPER_FRENCH_VOICES.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
             </div>
+            <p style={{ color: "var(--text-dim)", fontSize: 13 }}>
+              Le serveur Piper télécharge automatiquement la voix choisie si
+              elle n'est déjà pas installée — le premier message avec une
+              nouvelle voix peut prendre quelques secondes de plus le temps
+              du téléchargement, les suivants seront normaux.
+            </p>
           </>
         )}
 

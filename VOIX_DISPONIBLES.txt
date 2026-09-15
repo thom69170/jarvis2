@@ -1,0 +1,424 @@
+====================================================
+VOIX DISPONIBLES POUR JARVIS (Kokoro et Piper)
+====================================================
+
+A utiliser dans le panneau /admin, section "Voix de Jarvis",
+champ "Voix" du moteur choisi. Genere le 2026-09-15.
+
+----------------------------------------------------
+KOKORO (72 voix)
+----------------------------------------------------
+Deja installe avec ce projet (aucun telechargement requis).
+Voix francaise actuellement configuree par defaut : ff_siwis
+Note qualite (overall_grade) quand disponible : A = tres bon, F = faible.
+
+-- Anglais americain (voix feminines) --
+  af_alloy (qualite : C)
+  af_amelia_inno
+  af_aoede (qualite : C+)
+  af_bella (qualite : A-)
+  af_goodall_inno
+  af_heart (qualite : A)
+  af_jadzia
+  af_jessica (qualite : D)
+  af_kore (qualite : C+)
+  af_nicole (qualite : B-)
+  af_nova (qualite : C)
+  af_river (qualite : D)
+  af_sarah (qualite : C+)
+  af_sky (qualite : C-)
+  af_v0
+  af_v0bella
+  af_v0irulan
+  af_v0nicole
+  af_v0sarah
+  af_v0sky
+
+-- Anglais americain (voix masculines) --
+  am_adam (qualite : F+)
+  am_echo (qualite : D)
+  am_eric (qualite : D)
+  am_fenrir (qualite : C+)
+  am_liam (qualite : D)
+  am_michael (qualite : C+)
+  am_onyx (qualite : D)
+  am_price_inno
+  am_puck (qualite : C+)
+  am_santa (qualite : D-)
+  am_v0adam
+  am_v0gurney
+  am_v0michael
+
+-- Anglais britannique (voix feminines) --
+  bf_alice (qualite : D)
+  bf_emma (qualite : B-)
+  bf_isabella (qualite : C)
+  bf_lily (qualite : D)
+  bf_v0emma
+  bf_v0isabella
+
+-- Anglais britannique (voix masculines) --
+  bm_atten_inno
+  bm_daniel (qualite : D)
+  bm_fable (qualite : C)
+  bm_george (qualite : C)
+  bm_lewis (qualite : D+)
+  bm_v0george
+  bm_v0lewis
+
+-- Espagnol (voix feminines) --
+  ef_dora
+
+-- Espagnol (voix masculines) --
+  em_alex
+  em_santa
+
+-- Francais (voix feminines) --
+  ff_siwis (qualite : B-)
+
+-- Hindi (voix feminines) --
+  hf_alpha (qualite : C)
+  hf_beta (qualite : C)
+
+-- Hindi (voix masculines) --
+  hm_omega (qualite : C)
+  hm_psi (qualite : C)
+
+-- Italien (voix feminines) --
+  if_sara (qualite : C)
+
+-- Italien (voix masculines) --
+  im_nicola (qualite : C)
+
+-- Japonais (voix feminines) --
+  jf_alpha (qualite : C+)
+  jf_gongitsune (qualite : C)
+  jf_nezumi (qualite : C-)
+  jf_tebukuro (qualite : C)
+
+-- Japonais (voix masculines) --
+  jm_kumo (qualite : C-)
+
+-- Portugais bresilien (voix feminines) --
+  pf_dora
+
+-- Portugais bresilien (voix masculines) --
+  pm_alex
+  pm_santa
+
+-- Chinois mandarin (voix feminines) --
+  zf_xiaobei (qualite : D)
+  zf_xiaoni (qualite : D)
+  zf_xiaoxiao (qualite : D)
+  zf_xiaoyi (qualite : D)
+
+-- Chinois mandarin (voix masculines) --
+  zm_yunjian (qualite : D)
+  zm_yunxi (qualite : D)
+  zm_yunxia (qualite : D)
+  zm_yunyang (qualite : D)
+
+----------------------------------------------------
+PIPER (176 voix)
+----------------------------------------------------
+Catalogue officiel complet (https://huggingface.co/rhasspy/piper-voices).
+Contrairement a Kokoro, chaque voix doit etre telechargee separement
+par le serveur Piper avant d'etre utilisable (la voix francaise
+fr_FR-siwis-medium, configuree par defaut, est deja prete a l'emploi).
+Qualite du fichier : x_low < low < medium < high.
+
+-- Albanian (Albania) [sq_AL] --
+  sq_AL-edon-medium (qualite : medium, locuteurs : 1)
+
+-- Arabic (Jordan) [ar_JO] --
+  ar_JO-kareem-low (qualite : low, locuteurs : 1)
+  ar_JO-kareem-medium (qualite : medium, locuteurs : 1)
+
+-- Armenian (Armenia) [hy_AM] --
+  hy_AM-gor-medium (qualite : medium, locuteurs : 1)
+
+-- Basque (Spain) [eu_ES] --
+  eu_ES-antton-medium (qualite : medium, locuteurs : 1)
+  eu_ES-maider-medium (qualite : medium, locuteurs : 1)
+
+-- Bengali (Bangladesh) [bn_BD] --
+  bn_BD-google-medium (qualite : medium, locuteurs : 16)
+
+-- Bulgarian (Bulgaria) [bg_BG] --
+  bg_BG-dimitar-medium (qualite : medium, locuteurs : 1)
+
+-- Catalan (Spain) [ca_ES] --
+  ca_ES-upc_ona-medium (qualite : medium, locuteurs : 1)
+  ca_ES-upc_ona-x_low (qualite : x_low, locuteurs : 1)
+  ca_ES-upc_pau-x_low (qualite : x_low, locuteurs : 1)
+
+-- Chinese (China) [zh_CN] --
+  zh_CN-chaowen-medium (qualite : medium, locuteurs : 1)
+  zh_CN-huayan-medium (qualite : medium, locuteurs : 1)
+  zh_CN-huayan-x_low (qualite : x_low, locuteurs : 1)
+  zh_CN-xiao_ya-medium (qualite : medium, locuteurs : 1)
+
+-- Czech (Czech Republic) [cs_CZ] --
+  cs_CZ-jirka-low (qualite : low, locuteurs : 1)
+  cs_CZ-jirka-medium (qualite : medium, locuteurs : 1)
+  cs_CZ-kasandra-medium (qualite : medium, locuteurs : 1)
+
+-- Danish (Denmark) [da_DK] --
+  da_DK-talesyntese-medium (qualite : medium, locuteurs : 1)
+
+-- Dutch (Belgium) [nl_BE] --
+  nl_BE-nathalie-medium (qualite : medium, locuteurs : 1)
+  nl_BE-nathalie-x_low (qualite : x_low, locuteurs : 1)
+  nl_BE-rdh-medium (qualite : medium, locuteurs : 1)
+  nl_BE-rdh-x_low (qualite : x_low, locuteurs : 1)
+
+-- Dutch (Netherlands) [nl_NL] --
+  nl_NL-alex-medium (qualite : medium, locuteurs : 1)
+  nl_NL-mls_5809-low (qualite : low, locuteurs : 1)
+  nl_NL-mls_7432-low (qualite : low, locuteurs : 1)
+  nl_NL-mls-medium (qualite : medium, locuteurs : 52)
+  nl_NL-pim-medium (qualite : medium, locuteurs : 1)
+  nl_NL-ronnie-medium (qualite : medium, locuteurs : 1)
+
+-- English (Great Britain) [en_GB] --
+  en_GB-alan-low (qualite : low, locuteurs : 1)
+  en_GB-alan-medium (qualite : medium, locuteurs : 1)
+  en_GB-alba-medium (qualite : medium, locuteurs : 1)
+  en_GB-aru-medium (qualite : medium, locuteurs : 12)
+  en_GB-cori-high (qualite : high, locuteurs : 1)
+  en_GB-cori-medium (qualite : medium, locuteurs : 1)
+  en_GB-jenny_dioco-medium (qualite : medium, locuteurs : 1)
+  en_GB-northern_english_male-medium (qualite : medium, locuteurs : 1)
+  en_GB-semaine-medium (qualite : medium, locuteurs : 4)
+  en_GB-southern_english_female-low (qualite : low, locuteurs : 1)
+  en_GB-vctk-medium (qualite : medium, locuteurs : 109)
+
+-- English (United States) [en_US] --
+  en_US-amy-low (qualite : low, locuteurs : 1)
+  en_US-amy-medium (qualite : medium, locuteurs : 1)
+  en_US-arctic-medium (qualite : medium, locuteurs : 18)
+  en_US-bryce-medium (qualite : medium, locuteurs : 1)
+  en_US-danny-low (qualite : low, locuteurs : 1)
+  en_US-hfc_female-medium (qualite : medium, locuteurs : 1)
+  en_US-hfc_male-medium (qualite : medium, locuteurs : 1)
+  en_US-joe-medium (qualite : medium, locuteurs : 1)
+  en_US-john-medium (qualite : medium, locuteurs : 1)
+  en_US-kathleen-low (qualite : low, locuteurs : 1)
+  en_US-kristin-medium (qualite : medium, locuteurs : 1)
+  en_US-kusal-medium (qualite : medium, locuteurs : 1)
+  en_US-l2arctic-medium (qualite : medium, locuteurs : 24)
+  en_US-lessac-high (qualite : high, locuteurs : 1)
+  en_US-lessac-low (qualite : low, locuteurs : 1)
+  en_US-lessac-medium (qualite : medium, locuteurs : 1)
+  en_US-libritts_r-medium (qualite : medium, locuteurs : 904)
+  en_US-libritts-high (qualite : high, locuteurs : 904)
+  en_US-ljspeech-high (qualite : high, locuteurs : 1)
+  en_US-ljspeech-medium (qualite : medium, locuteurs : 1)
+  en_US-mike-medium (qualite : medium, locuteurs : 1)
+  en_US-norman-medium (qualite : medium, locuteurs : 1)
+  en_US-reza_ibrahim-medium (qualite : medium, locuteurs : 1)
+  en_US-ryan-high (qualite : high, locuteurs : 1)
+  en_US-ryan-low (qualite : low, locuteurs : 1)
+  en_US-ryan-medium (qualite : medium, locuteurs : 1)
+  en_US-sam-medium (qualite : medium, locuteurs : 1)
+
+-- Estonian (Estonia) [et_EE] --
+  et_EE-news-medium (qualite : medium, locuteurs : 4)
+
+-- Farsi (Iran) [fa_IR] --
+  fa_IR-amir-medium (qualite : medium, locuteurs : 1)
+  fa_IR-ganji_adabi-medium (qualite : medium, locuteurs : 1)
+  fa_IR-ganji-medium (qualite : medium, locuteurs : 1)
+  fa_IR-gyro-medium (qualite : medium, locuteurs : 1)
+  fa_IR-reza_ibrahim-medium (qualite : medium, locuteurs : 1)
+
+-- Finnish (Finland) [fi_FI] --
+  fi_FI-harri-low (qualite : low, locuteurs : 1)
+  fi_FI-harri-medium (qualite : medium, locuteurs : 1)
+
+-- French (France) [fr_FR] --
+  fr_FR-gilles-low (qualite : low, locuteurs : 1)
+  fr_FR-mls_1840-low (qualite : low, locuteurs : 1)
+  fr_FR-mls-medium (qualite : medium, locuteurs : 125)
+  fr_FR-siwis-low (qualite : low, locuteurs : 1)
+  fr_FR-siwis-medium (qualite : medium, locuteurs : 1)
+  fr_FR-tom-medium (qualite : medium, locuteurs : 1)
+  fr_FR-upmc-medium (qualite : medium, locuteurs : 2)
+
+-- Georgian (Georgia) [ka_GE] --
+  ka_GE-natia-medium (qualite : medium, locuteurs : 1)
+
+-- German (Germany) [de_DE] --
+  de_DE-eva_k-x_low (qualite : x_low, locuteurs : 1)
+  de_DE-karlsson-low (qualite : low, locuteurs : 1)
+  de_DE-kerstin-low (qualite : low, locuteurs : 1)
+  de_DE-mls-medium (qualite : medium, locuteurs : 236)
+  de_DE-pavoque-low (qualite : low, locuteurs : 1)
+  de_DE-ramona-low (qualite : low, locuteurs : 1)
+  de_DE-thorsten_emotional-medium (qualite : medium, locuteurs : 8)
+  de_DE-thorsten-high (qualite : high, locuteurs : 1)
+  de_DE-thorsten-low (qualite : low, locuteurs : 1)
+  de_DE-thorsten-medium (qualite : medium, locuteurs : 1)
+
+-- Greek (Greece) [el_GR] --
+  el_GR-joy-medium (qualite : medium, locuteurs : 1)
+  el_GR-rapunzelina-low (qualite : low, locuteurs : 1)
+  el_GR-rapunzelina-medium (qualite : medium, locuteurs : 1)
+
+-- Hebrew (Israel) [he_IL] --
+  he_IL-saspeech-medium (qualite : medium, locuteurs : 1)
+
+-- Hindi (India) [hi_IN] --
+  hi_IN-pratham-medium (qualite : medium, locuteurs : 1)
+  hi_IN-priyamvada-medium (qualite : medium, locuteurs : 1)
+  hi_IN-rohan-medium (qualite : medium, locuteurs : 1)
+
+-- Hungarian (Hungary) [hu_HU] --
+  hu_HU-anna-medium (qualite : medium, locuteurs : 1)
+  hu_HU-berta-medium (qualite : medium, locuteurs : 1)
+  hu_HU-imre-medium (qualite : medium, locuteurs : 1)
+
+-- Icelandic (Iceland) [is_IS] --
+  is_IS-bui-medium (qualite : medium, locuteurs : 1)
+  is_IS-salka-medium (qualite : medium, locuteurs : 1)
+  is_IS-steinn-medium (qualite : medium, locuteurs : 1)
+  is_IS-ugla-medium (qualite : medium, locuteurs : 1)
+
+-- Indonesian (Indonesia) [id_ID] --
+  id_ID-news_tts-medium (qualite : medium, locuteurs : 1)
+
+-- Italian (Italy) [it_IT] --
+  it_IT-paola-medium (qualite : medium, locuteurs : 1)
+  it_IT-riccardo-x_low (qualite : x_low, locuteurs : 1)
+  it_IT-serena-high (qualite : high, locuteurs : 1)
+  it_IT-serena-medium (qualite : medium, locuteurs : 1)
+
+-- Japanese (Japan) [ja_JA] --
+  ja_JA-hi_fi_captain-medium (qualite : medium, locuteurs : 2)
+
+-- Kazakh (Kazakhstan) [kk_KZ] --
+  kk_KZ-iseke-x_low (qualite : x_low, locuteurs : 1)
+  kk_KZ-issai-high (qualite : high, locuteurs : 6)
+  kk_KZ-raya-x_low (qualite : x_low, locuteurs : 1)
+
+-- Korean (South Korea) [ko_KR] --
+  ko_KR-kss-medium (qualite : medium, locuteurs : 1)
+
+-- Kurmanji Kurdish (Turkey) [ku_TR] --
+  ku_TR-berfin_renas-medium (qualite : medium, locuteurs : 2)
+
+-- Latvian (Latvia) [lv_LV] --
+  lv_LV-aivars-medium (qualite : medium, locuteurs : 1)
+
+-- Luxembourgish (Luxembourg) [lb_LU] --
+  lb_LU-marylux-medium (qualite : medium, locuteurs : 1)
+
+-- Malayalam (India) [ml_IN] --
+  ml_IN-arjun-medium (qualite : medium, locuteurs : 1)
+  ml_IN-meera-medium (qualite : medium, locuteurs : 1)
+
+-- Marathi (India) [mr_IN] --
+  mr_IN-google-medium (qualite : medium, locuteurs : 9)
+
+-- Nepali (Nepal) [ne_NP] --
+  ne_NP-chitwan-medium (qualite : medium, locuteurs : 1)
+  ne_NP-google-medium (qualite : medium, locuteurs : 18)
+  ne_NP-google-x_low (qualite : x_low, locuteurs : 18)
+
+-- Norwegian (Norway) [no_NO] --
+  no_NO-nvcc-medium (qualite : medium, locuteurs : 10)
+  no_NO-talesyntese-medium (qualite : medium, locuteurs : 1)
+
+-- Polish (Poland) [pl_PL] --
+  pl_PL-bass-high (qualite : high, locuteurs : 1)
+  pl_PL-darkman-medium (qualite : medium, locuteurs : 1)
+  pl_PL-gosia-medium (qualite : medium, locuteurs : 1)
+  pl_PL-mc_speech-medium (qualite : medium, locuteurs : 1)
+  pl_PL-mls_6892-low (qualite : low, locuteurs : 1)
+
+-- Portuguese (Brazil) [pt_BR] --
+  pt_BR-cadu-medium (qualite : medium, locuteurs : 1)
+  pt_BR-edresson-low (qualite : low, locuteurs : 1)
+  pt_BR-faber-medium (qualite : medium, locuteurs : 1)
+  pt_BR-jeff-medium (qualite : medium, locuteurs : 1)
+
+-- Portuguese (Portugal) [pt_PT] --
+  pt_PT-tugão-medium (qualite : medium, locuteurs : 1)
+
+-- Romanian (Romania) [ro_RO] --
+  ro_RO-mihai-medium (qualite : medium, locuteurs : 1)
+
+-- Russian (Russia) [ru_RU] --
+  ru_RU-denis-medium (qualite : medium, locuteurs : 1)
+  ru_RU-dmitri-medium (qualite : medium, locuteurs : 1)
+  ru_RU-irina-medium (qualite : medium, locuteurs : 1)
+  ru_RU-ruslan-medium (qualite : medium, locuteurs : 1)
+
+-- Serbian (Serbia) [sr_RS] --
+  sr_RS-serbski_institut-medium (qualite : medium, locuteurs : 2)
+
+-- Slovak (Slovakia) [sk_SK] --
+  sk_SK-lili-medium (qualite : medium, locuteurs : 1)
+
+-- Slovenian (Slovenia) [sl_SI] --
+  sl_SI-artur-medium (qualite : medium, locuteurs : 1)
+
+-- Spanish (Argentina) [es_AR] --
+  es_AR-daniela-high (qualite : high, locuteurs : 1)
+
+-- Spanish (Mexico) [es_MX] --
+  es_MX-ald-medium (qualite : medium, locuteurs : 1)
+  es_MX-ald-x_low (qualite : x_low, locuteurs : 1)
+  es_MX-claude-high (qualite : high, locuteurs : 1)
+
+-- Spanish (Spain) [es_ES] --
+  es_ES-carlfm-x_low (qualite : x_low, locuteurs : 1)
+  es_ES-davefx-medium (qualite : medium, locuteurs : 1)
+  es_ES-mls_10246-low (qualite : low, locuteurs : 1)
+  es_ES-mls_9972-low (qualite : low, locuteurs : 1)
+  es_ES-sharvard-medium (qualite : medium, locuteurs : 2)
+
+-- Swahili (Democratic Republic of the Congo) [sw_CD] --
+  sw_CD-lanfrica-medium (qualite : medium, locuteurs : 1)
+
+-- Swedish (Sweden) [sv_SE] --
+  sv_SE-alma-medium (qualite : medium, locuteurs : 1)
+  sv_SE-lisa-medium (qualite : medium, locuteurs : 1)
+  sv_SE-nst-medium (qualite : medium, locuteurs : 1)
+
+-- Telugu (India) [te_IN] --
+  te_IN-maya-medium (qualite : medium, locuteurs : 1)
+  te_IN-padmavathi-medium (qualite : medium, locuteurs : 1)
+  te_IN-venkatesh-medium (qualite : medium, locuteurs : 1)
+
+-- Thai (Thailand) [th_TH] --
+  th_TH-tsync2-medium (qualite : medium, locuteurs : 1)
+
+-- Turkish (Turkey) [tr_TR] --
+  tr_TR-dfki-medium (qualite : medium, locuteurs : 1)
+
+-- Ukrainian (Ukraine) [uk_UA] --
+  uk_UA-lada-x_low (qualite : x_low, locuteurs : 1)
+  uk_UA-mykyta-high (qualite : high, locuteurs : 1)
+  uk_UA-oleksa-high (qualite : high, locuteurs : 1)
+  uk_UA-tetiana-high (qualite : high, locuteurs : 1)
+  uk_UA-ukrainian_tts-medium (qualite : medium, locuteurs : 3)
+
+-- Urdu (Pakistan) [ur_PK] --
+  ur_PK-aegis_female-medium (qualite : medium, locuteurs : 1)
+  ur_PK-fasih-medium (qualite : medium, locuteurs : 1)
+
+-- Vietnamese (Vietnam) [vi_VN] --
+  vi_VN-25hours_single-low (qualite : low, locuteurs : 1)
+  vi_VN-vais1000-medium (qualite : medium, locuteurs : 1)
+  vi_VN-vivos-x_low (qualite : x_low, locuteurs : 65)
+
+-- Welsh (Great Britain) [cy_GB] --
+  cy_GB-bu_tts-medium (qualite : medium, locuteurs : 7)
+  cy_GB-gwryw_gogleddol-medium (qualite : medium, locuteurs : 1)
+
+----------------------------------------------------
+Pour changer de voix Piper, telecharge le .onnx + .onnx.json
+correspondants depuis https://huggingface.co/rhasspy/piper-voices
+et place-les dans le volume du conteneur Piper, ou utilise le nom
+de la voix directement si ton serveur Piper la telecharge a la volee.
