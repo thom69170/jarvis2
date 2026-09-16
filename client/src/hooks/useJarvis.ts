@@ -15,6 +15,19 @@ type SpeechRecognitionLike = {
 };
 
 /**
+ * Retire les didascalies entre asterisques ("*sourire*", "*rires*"...) avant
+ * de parler — elles restent affichees telles quelles dans l'historique de
+ * conversation (setMessages garde le texte brut), seule la voix les saute.
+ */
+function stripActionCues(text: string): string {
+  return text
+    .replace(/\*[^*]*\*/g, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\s+([,.!?;:])/g, "$1")
+    .trim();
+}
+
+/**
  * All of Jarvis's "brain": chat state, TTS playback, push-to-talk (via SSE
  * relay from tools/ptt-listener) and the in-browser wake word listener.
  * Shared by the full control page (client/src/pages/Jarvis.tsx) and the
@@ -137,13 +150,20 @@ export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
       return;
     }
 
+    const spokenText = stripActionCues(text);
+    if (!spokenText) {
+      // Le message ne contenait que des didascalies entre asterisques — rien a dire.
+      setOrbState("idle");
+      return;
+    }
+
     if (ttsProvider === "browser") {
-      speakWithBrowser(text);
+      speakWithBrowser(spokenText);
       return;
     }
 
     try {
-      const blob = await fetchTtsAudio(text);
+      const blob = await fetchTtsAudio(spokenText);
       const url = URL.createObjectURL(blob);
       audioRef.current?.pause();
       const audio = new Audio(url);
@@ -161,7 +181,7 @@ export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
     } catch (e) {
       // Voix serveur indisponible (clé manquante, quota, etc.) : on retombe sur la voix du navigateur.
       setErrorMsg(e instanceof Error ? e.message : String(e));
-      speakWithBrowser(text);
+      speakWithBrowser(spokenText);
     }
   }
 
