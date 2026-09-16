@@ -46,6 +46,8 @@ export function useJarvis() {
   const wakeRestartTimerRef = useRef<number | null>(null);
   const wakeRetryDelayRef = useRef(300);
   const wakeRegexRef = useRef<RegExp>(/\bjarvis\b/i);
+  const awaitingCommandRef = useRef(false);
+  const awaitingCommandTimeoutRef = useRef<number | null>(null);
   const orbStateRef = useRef<OrbState>("idle");
   const wakeWordEnabledRef = useRef(false);
   const messagesRef = useRef<ChatMessage[]>([]);
@@ -296,12 +298,51 @@ export function useJarvis() {
     r.interimResults = true;
     r.onresult = (event: any) => {
       const results = event.results;
-      const transcript: string = results?.[results.length - 1]?.[0]?.transcript ?? "";
+      const lastResult = results?.[results.length - 1];
+      const transcript: string = lastResult?.[0]?.transcript ?? "";
+      const isFinal: boolean = !!lastResult?.isFinal;
       setWakeTranscript(transcript);
-      if (wakeRegexRef.current.test(transcript)) {
-        r.stop();
-        beginVoiceCapture();
+
+      // Le mot d'activation seul a ete detecte lors d'un tour precedent : on
+      // n'a jamais arrete cette meme instance, la phrase suivante captee
+      // (une fois finalisee) est directement la commande — pas besoin de
+      // redemarrer une reconnaissance separee.
+      if (awaitingCommandRef.current) {
+        if (!isFinal) return;
+        awaitingCommandRef.current = false;
+        if (awaitingCommandTimeoutRef.current !== null) {
+          window.clearTimeout(awaitingCommandTimeoutRef.current);
+          awaitingCommandTimeoutRef.current = null;
+        }
+        const command = transcript.trim();
+        if (command) {
+          r.stop();
+          sendMessage(command);
+        }
+        return;
       }
+
+      const match = wakeRegexRef.current.exec(transcript);
+      if (!match || !isFinal) return;
+
+      // Tout ce qui suit le mot d'activation DANS LA MEME phrase ("Jarvis,
+      // quelle heure est-il ?") est envoye immediatement comme commande —
+      // plus besoin de s'arreter puis de reparler une fois l'ecoute lancee.
+      const remainder = transcript.slice(match.index + match[0].length).trim();
+      if (remainder) {
+        r.stop();
+        sendMessage(remainder);
+        return;
+      }
+
+      // Mot d'activation dit seul (rien derriere pour l'instant) : on
+      // continue d'ecouter avec la meme instance en attendant la commande,
+      // avec un delai limite pour ne pas rester en attente indefiniment.
+      awaitingCommandRef.current = true;
+      awaitingCommandTimeoutRef.current = window.setTimeout(() => {
+        awaitingCommandRef.current = false;
+        awaitingCommandTimeoutRef.current = null;
+      }, 6000);
     };
     r.onerror = (event: any) => {
       wakeActiveRef.current = false;
@@ -363,6 +404,11 @@ export function useJarvis() {
         window.clearTimeout(wakeRestartTimerRef.current);
         wakeRestartTimerRef.current = null;
       }
+      if (awaitingCommandTimeoutRef.current !== null) {
+        window.clearTimeout(awaitingCommandTimeoutRef.current);
+        awaitingCommandTimeoutRef.current = null;
+      }
+      awaitingCommandRef.current = false;
       if (wakeRecognitionRef.current) {
         wakeRecognitionRef.current.onend = null;
         wakeRecognitionRef.current.stop();
