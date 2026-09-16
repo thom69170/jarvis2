@@ -79,6 +79,13 @@ export interface UpdateConfig {
   branch: string;
 }
 
+/** Modérateur de la chaîne, saisi manuellement dans l'admin — pas déduit automatiquement. */
+export interface Moderator {
+  name: string;
+  /** Note libre facultative (ex: "fan de Zelda", "modo depuis 2023") pour aider Jarvis à le/la reconnaître. */
+  note?: string;
+}
+
 export interface Settings {
   provider: Provider;
   temperature: number; // 0..1, remapped per-provider before calling the API
@@ -90,6 +97,7 @@ export interface Settings {
   ptt: PttConfig;
   wakeWord: WakeWordConfig;
   update: UpdateConfig;
+  moderators: Moderator[];
 }
 
 export interface ChatMessage {
@@ -158,4 +166,5 @@ export const DEFAULT_SETTINGS: Settings = {
     repo: "thom69170/jarvis2",
     branch: "main",
   },
+  moderators: [],
 };

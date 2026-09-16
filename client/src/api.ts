@@ -6,6 +6,12 @@ export interface KeyStatus {
   preview: string;
 }
 
+/** Modérateur de la chaîne, saisi manuellement dans l'admin — pas déduit automatiquement. */
+export interface Moderator {
+  name: string;
+  note?: string;
+}
+
 /** Config shared by every self-hosted, OpenAI-compatible TTS server (Kokoro, Piper, Bark). */
 export interface LocalTtsConfig {
   baseUrl: string;
@@ -54,6 +60,7 @@ export interface PublicSettings {
     repo: string;
     branch: string;
   };
+  moderators: Moderator[];
   apiKeys: {
     openai: KeyStatus;
     anthropic: KeyStatus;
@@ -97,6 +104,7 @@ export interface SettingsUpdate {
   ptt?: Partial<PublicSettings["ptt"]>;
   wakeWord?: Partial<PublicSettings["wakeWord"]>;
   update?: Partial<PublicSettings["update"]>;
+  moderators?: Moderator[];
   apiKeys?: Partial<Record<"openai" | "anthropic" | "gemini" | "elevenlabs", string>>;
   clearKeys?: Array<"openai" | "anthropic" | "gemini" | "elevenlabs">;
 }

@@ -103,6 +103,23 @@ app.put("/api/settings", (req, res) => {
     }
   }
 
+  if (Array.isArray(body.moderators)) {
+    const valid = body.moderators.every(
+      (m: unknown) =>
+        typeof m === "object" &&
+        m !== null &&
+        typeof (m as { name?: unknown }).name === "string" &&
+        ((m as { note?: unknown }).note === undefined || typeof (m as { note?: unknown }).note === "string")
+    );
+    if (!valid) {
+      res.status(400).json({ error: "Format de modérateur invalide." });
+      return;
+    }
+    settings.moderators = body.moderators
+      .map((m: { name: string; note?: string }) => ({ name: m.name.trim(), note: m.note?.trim() || undefined }))
+      .filter((m: { name: string }) => m.name.length > 0);
+  }
+
   if (body.update) {
     if (typeof body.update.enabled === "boolean") {
       settings.update.enabled = body.update.enabled;

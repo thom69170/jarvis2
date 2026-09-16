@@ -65,6 +65,7 @@ export function toPublicSettings(settings: Settings) {
     ptt: settings.ptt,
     wakeWord: settings.wakeWord,
     update: settings.update,
+    moderators: settings.moderators,
     apiKeys: {
       openai: { set: !!settings.apiKeys.openai, preview: maskKey(settings.apiKeys.openai) },
       anthropic: { set: !!settings.apiKeys.anthropic, preview: maskKey(settings.apiKeys.anthropic) },

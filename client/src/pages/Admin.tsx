@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   MemoryEntry,
+  Moderator,
   PublicSettings,
   Provider,
   TtsProvider,
@@ -124,6 +125,8 @@ export default function Admin() {
   const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [memories, setMemories] = useState<MemoryEntry[] | null>(null);
   const [deletingMemoryId, setDeletingMemoryId] = useState<string | null>(null);
+  const [newModeratorName, setNewModeratorName] = useState("");
+  const [newModeratorNote, setNewModeratorNote] = useState("");
 
   useEffect(() => {
     fetchSettings()
@@ -207,6 +210,20 @@ export default function Admin() {
   const update = (patch: Partial<PublicSettings>) =>
     setSettings((prev) => (prev ? { ...prev, ...patch } : prev));
 
+  function handleAddModerator() {
+    const name = newModeratorName.trim();
+    if (!name || !settings) return;
+    const note = newModeratorNote.trim() || undefined;
+    update({ moderators: [...settings.moderators, { name, note }] });
+    setNewModeratorName("");
+    setNewModeratorNote("");
+  }
+
+  function handleRemoveModerator(index: number) {
+    if (!settings) return;
+    update({ moderators: settings.moderators.filter((_, i) => i !== index) });
+  }
+
   async function handleSave() {
     if (!settings) return;
     setSaving(true);
@@ -228,6 +245,7 @@ export default function Admin() {
         ptt: settings.ptt,
         wakeWord: settings.wakeWord,
         update: settings.update,
+        moderators: settings.moderators,
         apiKeys,
       });
       setSettings(saved);
@@ -806,6 +824,78 @@ export default function Admin() {
             ))}
           </ul>
         )}
+      </Section>
+
+      <Section title="Modérateurs">
+        <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
+          Renseigne les modérateurs de la chaîne pour que Jarvis sache qui
+          est qui s'ils sont mentionnés dans une conversation ou le chat.
+          Contrairement à la mémoire ci-dessus, cette liste est saisie à la
+          main, pas déduite automatiquement.
+        </p>
+        <div style={{ ...rowStyle, alignItems: "flex-start" }}>
+          <input
+            style={{ ...inputStyle, flex: 1 }}
+            placeholder="Nom du modérateur"
+            value={newModeratorName}
+            onChange={(e) => setNewModeratorName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAddModerator()}
+          />
+          <input
+            style={{ ...inputStyle, flex: 1 }}
+            placeholder="Note facultative (ex : fan de Zelda)"
+            value={newModeratorNote}
+            onChange={(e) => setNewModeratorNote(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAddModerator()}
+          />
+          <button onClick={handleAddModerator} style={ghostButtonNeutral}>
+            Ajouter
+          </button>
+        </div>
+        {settings.moderators.length === 0 && (
+          <p style={{ color: "var(--text-dim)", fontSize: 13 }}>Aucun modérateur renseigné.</p>
+        )}
+        {settings.moderators.length > 0 && (
+          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+            {settings.moderators.map((m, i) => (
+              <li
+                key={`${m.name}-${i}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  background: "var(--panel-alt)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>
+                  <strong>{m.name}</strong>
+                  {m.note && <span style={{ color: "var(--text-dim)" }}> — {m.note}</span>}
+                </span>
+                <button
+                  onClick={() => handleRemoveModerator(i)}
+                  style={{
+                    background: "transparent",
+                    color: "var(--danger)",
+                    border: "1px solid var(--danger)",
+                    borderRadius: 6,
+                    padding: "2px 8px",
+                    fontSize: 12,
+                    flexShrink: 0,
+                  }}
+                >
+                  Supprimer
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p style={{ color: "var(--text-dim)", fontSize: 12, marginTop: 8, marginBottom: 0 }}>
+          N'oublie pas de cliquer sur « Enregistrer » en bas de page pour sauvegarder.
+        </p>
       </Section>
 
       <Section title="Modèles utilisés (avancé)">

@@ -3,7 +3,7 @@ import { generateAnthropicReply } from "./providers/anthropic.js";
 import { generateGeminiReply } from "./providers/gemini.js";
 import { generateOllamaReply } from "./providers/ollama.js";
 import { generateOpenAiReply } from "./providers/openai.js";
-import { ChatMessage, Settings } from "./types.js";
+import { ChatMessage, Moderator, Settings } from "./types.js";
 
 export class MissingApiKeyError extends Error {}
 
@@ -47,6 +47,14 @@ function buildMemoryRecallBlock(): string {
   if (!memories.length) return "";
   return `\n\nVoici ce que tu sais déjà sur le streamer et le stream (utilise-le naturellement si c'est pertinent, ne le récite pas comme une liste) :\n${memories
     .map((m) => `- ${m.text}`)
+    .join("\n")}`;
+}
+
+/** Liste des modérateurs de la chaîne (saisie manuellement dans l'admin) pour que Jarvis les reconnaisse par leur nom. */
+function buildModeratorsBlock(moderators: Moderator[]): string {
+  if (!moderators.length) return "";
+  return `\n\nVoici les modérateurs de la chaîne (si le streamer ou le chat mentionne un de ces noms, tu sais que c'est un·e modérateur·rice — tu peux le souligner avec complicité si pertinent) :\n${moderators
+    .map((m) => `- ${m.name}${m.note ? ` (${m.note})` : ""}`)
     .join("\n")}`;
 }
 
@@ -99,7 +107,7 @@ export async function generateReply(
 ): Promise<string> {
   const augmentedSettings: Settings = {
     ...settings,
-    systemPrompt: `${settings.systemPrompt}${buildMemoryRecallBlock()}`,
+    systemPrompt: `${settings.systemPrompt}${buildMemoryRecallBlock()}${buildModeratorsBlock(settings.moderators)}`,
   };
 
   let reply: string;
