@@ -252,7 +252,22 @@ app.post("/api/ptt/release", (_req, res) => {
 // interroge le LLM séparément. Chaque onglet ignore son propre échange
 // (identifié par clientId, déjà reçu via sa propre réponse HTTP) et décide
 // localement s'il doit le lire à voix haute (respecte sa propre case "Voix").
-const chatClients = new Set<express.Response>();
+type ChatPage = "jarvis" | "overlay";
+const chatClients = new Map<express.Response, ChatPage>();
+
+function isOverlayConnected(): boolean {
+  for (const page of chatClients.values()) {
+    if (page === "overlay") return true;
+  }
+  return false;
+}
+
+function broadcastOverlayStatus(): void {
+  const data = JSON.stringify({ overlayConnected: isOverlayConnected() });
+  for (const client of chatClients.keys()) {
+    client.write(`event: overlay-status\ndata: ${data}\n\n`);
+  }
+}
 
 app.get("/api/chat/stream", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
@@ -261,15 +276,23 @@ app.get("/api/chat/stream", (req, res) => {
   res.flushHeaders();
   res.write(": connected\n\n");
 
-  chatClients.add(res);
+  const page: ChatPage = req.query.page === "overlay" ? "overlay" : "jarvis";
+  chatClients.set(res, page);
+  // Informe ce client de l'etat actuel des qu'il se connecte, puis previent
+  // tout le monde si l'arrivee de ce client change la situation (ex: /jarvis
+  // doit se couper le son des qu'un /overlay apparait).
+  res.write(`event: overlay-status\ndata: ${JSON.stringify({ overlayConnected: isOverlayConnected() })}\n\n`);
+  broadcastOverlayStatus();
+
   req.on("close", () => {
     chatClients.delete(res);
+    broadcastOverlayStatus();
   });
 });
 
 function broadcastChat(payload: { clientId: string; userText: string; reply: string }): void {
   const data = JSON.stringify(payload);
-  for (const client of chatClients) {
+  for (const client of chatClients.keys()) {
     client.write(`event: exchange\ndata: ${data}\n\n`);
   }
 }

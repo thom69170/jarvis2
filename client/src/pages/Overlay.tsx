@@ -22,7 +22,7 @@ export default function Overlay() {
   const transparent = params.get("transparent") === "1";
   const size = Number(params.get("size")) || 260;
 
-  const { orbState, screenShared, shareScreen } = useJarvis();
+  const { orbState, screenShared, shareScreen } = useJarvis("overlay");
 
   return (
     <div

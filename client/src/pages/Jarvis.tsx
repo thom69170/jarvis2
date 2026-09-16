@@ -22,6 +22,7 @@ export default function Jarvis() {
     messages,
     orbState,
     errorMsg,
+    overlayConnected,
     ttsEnabled,
     setTtsEnabled,
     voices,
@@ -38,7 +39,7 @@ export default function Jarvis() {
     screenShared,
     shareScreen,
     stopScreenShare,
-  } = useJarvis();
+  } = useJarvis("jarvis");
 
   async function handleSend() {
     const text = input;
@@ -138,9 +139,10 @@ export default function Jarvis() {
 
       <div style={{ display: "flex", gap: 12, alignItems: "center", fontSize: 13, color: "var(--text-dim)" }}>
         <label style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          <input type="checkbox" checked={ttsEnabled} onChange={(e) => setTtsEnabled(e.target.checked)} />
+          <input type="checkbox" checked={ttsEnabled} onChange={(e) => setTtsEnabled(e.target.checked)} disabled={overlayConnected} />
           Voix ({TTS_PROVIDER_LABELS[ttsProvider]})
         </label>
+        {overlayConnected && <span>🔇 Muet ici — /overlay est ouvert et parle à ta place</span>}
         {ttsEnabled && ttsProvider === "browser" && voices.length > 0 && (
           <select
             value={voiceName}

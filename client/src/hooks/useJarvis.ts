@@ -21,8 +21,13 @@ type SpeechRecognitionLike = {
  * visual-only OBS page (client/src/pages/Overlay.tsx) so both behave
  * identically — the only difference between them is what they render.
  */
-export function useJarvis() {
+export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // Vrai des qu'un onglet /overlay est connecte (voir l'effet chat/stream
+  // plus bas) — sert a couper automatiquement le son sur /jarvis pour
+  // eviter l'echo, /overlay etant la seule sortie audio censee etre
+  // entendue (capturee par OBS).
+  const [overlayConnected, setOverlayConnected] = useState(false);
   const [orbState, setOrbState] = useState<OrbState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [ttsEnabled, setTtsEnabled] = useState(true);
@@ -119,6 +124,14 @@ export function useJarvis() {
   }
 
   async function speak(text: string) {
+    // /jarvis ne doit jamais parler en meme temps que /overlay (echo) — des
+    // qu'un /overlay est detecte connecte, /jarvis reste muet quelle que
+    // soit sa propre case "Voix", que l'echange vienne de lui ou soit
+    // mirrore depuis un autre onglet.
+    if (page === "jarvis" && overlayConnected) {
+      setOrbState("idle");
+      return;
+    }
     if (!ttsEnabled) {
       setOrbState("idle");
       return;
@@ -286,20 +299,25 @@ export function useJarvis() {
   // Garde /jarvis et /overlay synchronises quand les deux sont ouverts en
   // meme temps : chaque echange (peu importe l'onglet qui l'a declenche) est
   // relaye ici, sauf le sien propre (deja traite via le retour de sendChat
-  // dans sendMessage ci-dessus). Chaque onglet decide localement s'il doit
-  // le lire a voix haute via sa propre case "Voix" (ttsEnabled) — c'est ce
-  // qui permet par ex. de laisser /overlay parler seul pendant que /jarvis
-  // sert juste a piloter/monitorer en silence.
+  // dans sendMessage ci-dessus). Signale aussi au serveur son propre type de
+  // page (?page=) pour que /jarvis sache quand un /overlay est connecte et
+  // se coupe automatiquement le son (voir speak()) — /overlay reste la seule
+  // sortie audio censee etre entendue, capturee par OBS.
   useEffect(() => {
-    const es = new EventSource("/api/chat/stream");
+    const es = new EventSource(`/api/chat/stream?page=${page}`);
     es.addEventListener("exchange", (event) => {
       const data = JSON.parse((event as MessageEvent).data) as ChatExchange;
       if (data.clientId === clientIdRef.current) return;
       setMessages((prev) => [...prev, { role: "user", content: data.userText }, { role: "assistant", content: data.reply }]);
       speakRef.current(data.reply);
     });
+    es.addEventListener("overlay-status", (event) => {
+      const data = JSON.parse((event as MessageEvent).data) as { overlayConnected: boolean };
+      setOverlayConnected(data.overlayConnected);
+    });
     return () => es.close();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   // Wake word ("Jarvis"): runs entirely in the browser, no external helper.
   // A second, continuous SpeechRecognition instance scans everything said
@@ -474,6 +492,7 @@ export function useJarvis() {
     messages,
     orbState,
     errorMsg,
+    overlayConnected,
     ttsEnabled,
     setTtsEnabled,
     voices,
