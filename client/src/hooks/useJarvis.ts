@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChatMessage, PublicSettings, fetchSettings, fetchTtsAudio, sendChat } from "../api";
+import { ChatExchange, ChatMessage, PublicSettings, fetchSettings, fetchTtsAudio, sendChat } from "../api";
 import { OrbState } from "../components/Orb";
 
 type SpeechRecognitionLike = {
@@ -52,6 +52,9 @@ export function useJarvis() {
   const wakeWordEnabledRef = useRef(false);
   const messagesRef = useRef<ChatMessage[]>([]);
   const speakRef = useRef<(text: string) => void>(() => undefined);
+  // Identifie cet onglet pour /api/chat/stream (voir plus bas) : un par
+  // chargement de page, pas besoin de coordination entre /jarvis et /overlay.
+  const clientIdRef = useRef<string>(crypto.randomUUID());
 
   useEffect(() => {
     orbStateRef.current = orbState;
@@ -209,7 +212,7 @@ export function useJarvis() {
     setOrbState("thinking");
     try {
       const image = captureFrame();
-      const { reply } = await sendChat(nextMessages, image);
+      const { reply } = await sendChat(nextMessages, image, clientIdRef.current);
       setMessages([...nextMessages, { role: "assistant", content: reply }]);
       speakRef.current(reply);
     } catch (e) {
@@ -279,6 +282,24 @@ export function useJarvis() {
     return () => es.close();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ptt.enabled]);
+
+  // Garde /jarvis et /overlay synchronises quand les deux sont ouverts en
+  // meme temps : chaque echange (peu importe l'onglet qui l'a declenche) est
+  // relaye ici, sauf le sien propre (deja traite via le retour de sendChat
+  // dans sendMessage ci-dessus). Chaque onglet decide localement s'il doit
+  // le lire a voix haute via sa propre case "Voix" (ttsEnabled) — c'est ce
+  // qui permet par ex. de laisser /overlay parler seul pendant que /jarvis
+  // sert juste a piloter/monitorer en silence.
+  useEffect(() => {
+    const es = new EventSource("/api/chat/stream");
+    es.addEventListener("exchange", (event) => {
+      const data = JSON.parse((event as MessageEvent).data) as ChatExchange;
+      if (data.clientId === clientIdRef.current) return;
+      setMessages((prev) => [...prev, { role: "user", content: data.userText }, { role: "assistant", content: data.reply }]);
+      speakRef.current(data.reply);
+    });
+    return () => es.close();
+  }, []);
 
   // Wake word ("Jarvis"): runs entirely in the browser, no external helper.
   // A second, continuous SpeechRecognition instance scans everything said

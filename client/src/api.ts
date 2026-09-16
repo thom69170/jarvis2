@@ -119,16 +119,24 @@ export async function updateSettings(update: SettingsUpdate): Promise<PublicSett
 }
 
 /** `image`: base64 JPEG (no data: prefix), e.g. a screenshot of the shared game window — ignored by providers/models without vision support. */
+/** `clientId` : identifie cet onglet pour qu'il ignore l'écho de son propre échange sur /api/chat/stream (voir useJarvis.ts). */
 export async function sendChat(
   messages: ChatMessage[],
-  image?: string
+  image?: string,
+  clientId?: string
 ): Promise<{ reply: string; provider: Provider }> {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, image }),
+    body: JSON.stringify({ messages, image, clientId }),
   });
   return handle<{ reply: string; provider: Provider }>(res);
+}
+
+export interface ChatExchange {
+  clientId: string;
+  userText: string;
+  reply: string;
 }
 
 export interface UpdateCheckResult {

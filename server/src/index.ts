@@ -161,6 +161,9 @@ app.post("/api/chat", async (req, res) => {
   // strip a data: URL prefix defensively in case the caller left it in.
   const rawImage = typeof req.body?.image === "string" ? req.body.image : undefined;
   const image = rawImage ? rawImage.replace(/^data:image\/\w+;base64,/, "") : undefined;
+  // Identifies which browser tab/page sent this request (see client/src/hooks/useJarvis.ts),
+  // so that tab can ignore its own exchange when it comes back over the broadcast below.
+  const clientId = typeof req.body?.clientId === "string" ? req.body.clientId : "";
 
   if (messages.length === 0) {
     res.status(400).json({ error: "Aucun message fourni." });
@@ -169,6 +172,10 @@ app.post("/api/chat", async (req, res) => {
 
   try {
     const reply = await generateReply(settings, messages, image);
+    const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
+    if (lastUserMessage) {
+      broadcastChat({ clientId, userText: lastUserMessage.content, reply });
+    }
     res.json({ reply, provider: settings.provider });
   } catch (error) {
     if (error instanceof MissingApiKeyError) {
@@ -238,6 +245,34 @@ app.post("/api/ptt/release", (_req, res) => {
   broadcastPtt("release");
   res.json({ ok: true, listeners: pttClients.size });
 });
+
+// Relaie chaque échange (texte utilisateur + réponse) à tous les onglets
+// connectés — permet à /jarvis et /overlay ouverts en même temps de rester
+// synchronisés (même historique, même état visuel) sans que chacun
+// interroge le LLM séparément. Chaque onglet ignore son propre échange
+// (identifié par clientId, déjà reçu via sa propre réponse HTTP) et décide
+// localement s'il doit le lire à voix haute (respecte sa propre case "Voix").
+const chatClients = new Set<express.Response>();
+
+app.get("/api/chat/stream", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+  res.write(": connected\n\n");
+
+  chatClients.add(res);
+  req.on("close", () => {
+    chatClients.delete(res);
+  });
+});
+
+function broadcastChat(payload: { clientId: string; userText: string; reply: string }): void {
+  const data = JSON.stringify(payload);
+  for (const client of chatClients) {
+    client.write(`event: exchange\ndata: ${data}\n\n`);
+  }
+}
 
 // Read-only update check against the public GitHub repo: never pulls or
 // restarts anything itself, just tells the admin panel whether a newer
