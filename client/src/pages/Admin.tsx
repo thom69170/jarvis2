@@ -1,6 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { PublicSettings, Provider, TtsProvider, UpdateCheckResult, checkForUpdate, fetchSettings, updateSettings } from "../api";
+import {
+  MemoryEntry,
+  PublicSettings,
+  Provider,
+  TtsProvider,
+  UpdateCheckResult,
+  checkForUpdate,
+  deleteMemory,
+  fetchMemories,
+  fetchSettings,
+  updateSettings,
+} from "../api";
 import { codeToGklName, formatCombo } from "../keyNames";
 
 type KeyName = "openai" | "anthropic" | "gemini" | "elevenlabs";
@@ -111,12 +122,32 @@ export default function Admin() {
   const recordedKeysRef = useRef<Set<string>>(new Set());
   const [updateCheck, setUpdateCheck] = useState<UpdateCheckResult | null>(null);
   const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [memories, setMemories] = useState<MemoryEntry[] | null>(null);
+  const [deletingMemoryId, setDeletingMemoryId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSettings()
       .then(setSettings)
       .catch((e) => setError(e.message));
   }, []);
+
+  useEffect(() => {
+    fetchMemories()
+      .then(setMemories)
+      .catch(() => undefined);
+  }, []);
+
+  async function handleDeleteMemory(id: string) {
+    setDeletingMemoryId(id);
+    try {
+      await deleteMemory(id);
+      setMemories((prev) => prev?.filter((m) => m.id !== id) ?? prev);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setDeletingMemoryId(null);
+    }
+  }
 
   useEffect(() => {
     checkForUpdate()
@@ -724,6 +755,57 @@ export default function Admin() {
           rows={4}
           style={{ ...inputStyle, width: "100%", resize: "vertical" }}
         />
+      </Section>
+
+      <Section title="Mémoire de Jarvis">
+        <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
+          Jarvis retient tout seul les faits durables qu'il apprend sur toi
+          ou le stream (ton jeu du moment, une préférence, une blague
+          récurrente...) et s'en ressert dans les conversations suivantes,
+          même après un redémarrage. Pas de contrôle direct sur ce qu'il
+          retient — seulement la liste ci-dessous pour vérifier et
+          supprimer ce qui ne devrait pas y être.
+        </p>
+        {memories === null && <p style={{ color: "var(--text-dim)", fontSize: 13 }}>Chargement…</p>}
+        {memories?.length === 0 && (
+          <p style={{ color: "var(--text-dim)", fontSize: 13 }}>Rien retenu pour l'instant.</p>
+        )}
+        {memories && memories.length > 0 && (
+          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+            {memories.map((m) => (
+              <li
+                key={m.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  background: "var(--panel-alt)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>{m.text}</span>
+                <button
+                  onClick={() => handleDeleteMemory(m.id)}
+                  disabled={deletingMemoryId === m.id}
+                  style={{
+                    background: "transparent",
+                    color: "var(--danger)",
+                    border: "1px solid var(--danger)",
+                    borderRadius: 6,
+                    padding: "2px 8px",
+                    fontSize: 12,
+                    flexShrink: 0,
+                  }}
+                >
+                  {deletingMemoryId === m.id ? "…" : "Supprimer"}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </Section>
 
       <Section title="Modèles utilisés (avancé)">

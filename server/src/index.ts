@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import { MissingApiKeyError, generateReply } from "./chatEngine.js";
+import { deleteMemory, loadMemories } from "./memoryStore.js";
 import { loadSettings, saveSettings, toPublicSettings } from "./settingsStore.js";
 import { MissingTtsConfigError, generateSpeech } from "./ttsEngine.js";
 import { ChatMessage, Provider, TtsProvider } from "./types.js";
@@ -240,6 +241,23 @@ async function runUpdateCheck(): Promise<UpdateCheckResult> {
 
 app.get("/api/update/check", async (_req, res) => {
   res.json(await runUpdateCheck());
+});
+
+// Mémoire longue durée : faits que Jarvis apprend tout seul au fil des
+// conversations (voir chatEngine.ts) et injecte dans son prompt système aux
+// échanges suivants. Lecture/suppression uniquement ici — l'ajout se fait
+// automatiquement côté chatEngine, jamais via une requête directe du client.
+app.get("/api/memory", (_req, res) => {
+  res.json({ memories: loadMemories() });
+});
+
+app.delete("/api/memory/:id", (req, res) => {
+  const removed = deleteMemory(req.params.id);
+  if (!removed) {
+    res.status(404).json({ error: "Souvenir introuvable." });
+    return;
+  }
+  res.json({ ok: true });
 });
 
 app.listen(PORT, () => {

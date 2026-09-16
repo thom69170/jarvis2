@@ -151,3 +151,21 @@ export async function fetchTtsAudio(text: string): Promise<Blob> {
   }
   return res.blob();
 }
+
+export interface MemoryEntry {
+  id: string;
+  text: string;
+  createdAt: string;
+}
+
+/** Faits que Jarvis a appris tout seul au fil des conversations (voir server/src/chatEngine.ts). */
+export async function fetchMemories(): Promise<MemoryEntry[]> {
+  const res = await fetch("/api/memory");
+  const data = await handle<{ memories: MemoryEntry[] }>(res);
+  return data.memories;
+}
+
+export async function deleteMemory(id: string): Promise<void> {
+  const res = await fetch(`/api/memory/${encodeURIComponent(id)}`, { method: "DELETE" });
+  await handle<{ ok: boolean }>(res);
+}

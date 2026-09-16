@@ -5,6 +5,7 @@ build/
 .env
 .env.local
 server/data/settings.json
+server/data/memory.json
 *.log
 *.tsbuildinfo
 .DS_Store
