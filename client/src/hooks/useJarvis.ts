@@ -359,6 +359,17 @@ export function useJarvis() {
     r.onstart = () => {
       setWakeStatus("listening");
       wakeRetryDelayRef.current = 300;
+      // Efface le message d'erreur laisse par une tentative precedente
+      // (mic occupe, "network"...) une fois que l'ecoute a effectivement
+      // redemarre avec succes — sans toucher a un message sans rapport
+      // (TTS, chat...) qui pourrait etre affiche en meme temps.
+      setErrorMsg((prev) =>
+        prev.startsWith("Micro refusé pour le mot d'activation") ||
+        prev.startsWith("Micro indisponible pour le mot d'activation") ||
+        prev.startsWith("Erreur de reconnaissance vocale (mot d'activation)")
+          ? ""
+          : prev
+      );
     };
     r.onend = () => {
       wakeActiveRef.current = false;
