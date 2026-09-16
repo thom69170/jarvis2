@@ -22,7 +22,7 @@ export default function Overlay() {
   const transparent = params.get("transparent") === "1";
   const size = Number(params.get("size")) || 260;
 
-  const { orbState, screenShared, shareScreen } = useJarvis("overlay");
+  const { orbState, mouthLevelRef, screenShared, shareScreen } = useJarvis("overlay");
 
   return (
     <div
@@ -35,7 +35,7 @@ export default function Overlay() {
         position: "relative",
       }}
     >
-      <Orb state={orbState} size={size} />
+      <Orb state={orbState} size={size} mouthLevelRef={mouthLevelRef} />
 
       {/* Only shown until clicked once — this is the one control this page
           allows itself, since sharing the game window needs a user gesture

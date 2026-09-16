@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 export type OrbState = "idle" | "thinking" | "speaking" | "listening" | "error";
 
 const JARVIS_COLOR = "#450046";
@@ -81,7 +83,16 @@ function glow(color: string) {
   return `0 0 16px ${color}, 0 0 36px ${color}, 0 0 70px ${color}, 0 0 110px ${color}99`;
 }
 
-export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
+export function Orb({
+  state,
+  size = 260,
+  mouthLevelRef,
+}: {
+  state: OrbState;
+  size?: number;
+  /** Niveau audio courant (0..1), mis a jour en dehors de React (voir useJarvis.ts) — quand fourni pendant "speaking", pilote l'ouverture de la bouche image par image au lieu de l'animation generique a vitesse fixe. */
+  mouthLevelRef?: React.RefObject<number>;
+}) {
   const face = FACE_STATES[state];
   const idle = state === "idle";
   const screenW = size * 0.86;
@@ -90,6 +101,27 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
   const eyeH = screenH * 0.1 * face.eyeHeightScale;
   const mouthW = screenW * 0.34 * face.mouthWidthScale;
   const mouthH = screenH * 0.14 * face.mouthHeightScale;
+
+  const mouthRef = useRef<HTMLDivElement | null>(null);
+  const liveSync = state === "speaking" && !!mouthLevelRef;
+
+  useEffect(() => {
+    if (!liveSync || !mouthLevelRef) return;
+    let raf: number;
+    let smoothed = 0;
+    const closedH = mouthH * 0.35;
+    const openH = mouthH * 1.35;
+    const tick = () => {
+      const target = mouthLevelRef.current ?? 0;
+      smoothed += (target - smoothed) * 0.4;
+      if (mouthRef.current) {
+        mouthRef.current.style.height = `${closedH + (openH - closedH) * smoothed}px`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [liveSync, mouthLevelRef, mouthH]);
 
   return (
     <div
@@ -196,7 +228,9 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
               />
             </div>
             <div
-              className={face.talk ? "jarvis-talk" : idle ? "jarvis-idle-mouth" : undefined}
+              ref={mouthRef}
+              data-jarvis-mouth="true"
+              className={!liveSync && face.talk ? "jarvis-talk" : idle ? "jarvis-idle-mouth" : undefined}
               style={{
                 width: mouthW,
                 height: mouthH,
@@ -204,7 +238,9 @@ export function Orb({ state, size = 260 }: { state: OrbState; size?: number }) {
                 background: face.color,
                 boxShadow: glow(face.color),
                 filter: "brightness(1.6) saturate(1.3)",
-                transition: "all 0.25s ease",
+                // Pas de transition en suivi audio en direct : elle lisserait/retarderait
+                // les mises a jour a 60 im/s et donnerait un mouvement mou plutot que net.
+                transition: liveSync ? "none" : "all 0.25s ease",
               }}
             />
           </div>

@@ -23,6 +23,7 @@ export default function Jarvis() {
     orbState,
     errorMsg,
     overlayConnected,
+    mouthLevelRef,
     ttsEnabled,
     setTtsEnabled,
     voices,
@@ -60,7 +61,7 @@ export default function Jarvis() {
         gap: 24,
       }}
     >
-      <Orb state={orbState} />
+      <Orb state={orbState} mouthLevelRef={mouthLevelRef} />
 
       <div style={{ minHeight: 32, textAlign: "center", maxWidth: 560 }}>
         {errorMsg ? (

@@ -69,6 +69,13 @@ export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
   const orbStateRef = useRef<OrbState>("idle");
   const wakeWordEnabledRef = useRef(false);
   const messagesRef = useRef<ChatMessage[]>([]);
+  // Niveau audio courant (0..1), mis a jour ~60x/s pendant la lecture d'une
+  // voix serveur (pas de setState : lu directement par Orb.tsx via rAF pour
+  // coller la bouche au volume reel sans re-render a chaque frame).
+  const mouthLevelRef = useRef(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const mouthAnimFrameRef = useRef<number | null>(null);
   const speakRef = useRef<(text: string) => void>(() => undefined);
   // Identifie cet onglet pour /api/chat/stream (voir plus bas) : un par
   // chargement de page, pas besoin de coordination entre /jarvis et /overlay.
@@ -136,6 +143,56 @@ export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
     window.speechSynthesis.speak(utterance);
   }
 
+  // Analyse le volume reel de l'audio en cours (Web Audio API) pour que la
+  // bouche colle a ce qui est effectivement dit, plutot que de suivre une
+  // simple boucle a vitesse fixe. Uniquement possible pour les voix serveur
+  // (audio <audio> reel) — la voix du navigateur (SpeechSynthesis) ne donne
+  // acces a aucun flux audio, elle garde donc l'animation generique.
+  function startMouthSync(audio: HTMLAudioElement) {
+    try {
+      const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!Ctx) return;
+      if (!audioContextRef.current) {
+        audioContextRef.current = new Ctx();
+      }
+      const ctx = audioContextRef.current;
+      if (ctx.state === "suspended") ctx.resume().catch(() => undefined);
+
+      const source = ctx.createMediaElementSource(audio);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      analyser.connect(ctx.destination);
+      analyserRef.current = analyser;
+
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      const tick = () => {
+        if (!analyserRef.current) return;
+        analyserRef.current.getByteTimeDomainData(data);
+        let sumSquares = 0;
+        for (let i = 0; i < data.length; i++) {
+          const v = (data[i] - 128) / 128;
+          sumSquares += v * v;
+        }
+        const rms = Math.sqrt(sumSquares / data.length);
+        mouthLevelRef.current = Math.min(1, rms * 4);
+        mouthAnimFrameRef.current = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch {
+      // Web Audio indisponible/bloque : la bouche retombera sur l'animation generique.
+    }
+  }
+
+  function stopMouthSync() {
+    if (mouthAnimFrameRef.current !== null) {
+      cancelAnimationFrame(mouthAnimFrameRef.current);
+      mouthAnimFrameRef.current = null;
+    }
+    analyserRef.current = null;
+    mouthLevelRef.current = 0;
+  }
+
   async function speak(text: string) {
     // /jarvis ne doit jamais parler en meme temps que /overlay (echo) — des
     // qu'un /overlay est detecte connecte, /jarvis reste muet quelle que
@@ -166,17 +223,21 @@ export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
       const blob = await fetchTtsAudio(spokenText);
       const url = URL.createObjectURL(blob);
       audioRef.current?.pause();
+      stopMouthSync();
       const audio = new Audio(url);
       audioRef.current = audio;
       audio.onended = () => {
         setOrbState("idle");
+        stopMouthSync();
         URL.revokeObjectURL(url);
       };
       audio.onerror = () => {
         setOrbState("idle");
+        stopMouthSync();
         URL.revokeObjectURL(url);
       };
       setOrbState("speaking");
+      startMouthSync(audio);
       await audio.play();
     } catch (e) {
       // Voix serveur indisponible (clé manquante, quota, etc.) : on retombe sur la voix du navigateur.
@@ -513,6 +574,7 @@ export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
     orbState,
     errorMsg,
     overlayConnected,
+    mouthLevelRef,
     ttsEnabled,
     setTtsEnabled,
     voices,
