@@ -49,6 +49,7 @@ export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
   const [ttsProvider, setTtsProvider] = useState<PublicSettings["tts"]["provider"]>("browser");
   const [ptt, setPtt] = useState<PublicSettings["ptt"]>({ enabled: false, combo: [] });
   const [wakeWord, setWakeWord] = useState<PublicSettings["wakeWord"]>({ enabled: false, phrase: "jarvis" });
+  const [overlaySize, setOverlaySize] = useState<number>(260);
   const [micGranted, setMicGranted] = useState(false);
   const [wakeStatus, setWakeStatus] = useState<"stopped" | "listening">("stopped");
   const [wakeTranscript, setWakeTranscript] = useState("");
@@ -105,6 +106,7 @@ export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
         setTtsProvider(s.tts.provider);
         setPtt(s.ptt);
         setWakeWord(s.wakeWord);
+        setOverlaySize(s.overlaySize);
       })
       .catch(() => undefined);
   }, []);
@@ -583,6 +585,7 @@ export function useJarvis(page: "jarvis" | "overlay" = "jarvis") {
     ttsProvider,
     ptt,
     wakeWord,
+    overlaySize,
     micGranted,
     enableMic,
     wakeStatus,

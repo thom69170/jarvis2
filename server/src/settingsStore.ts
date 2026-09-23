@@ -66,6 +66,7 @@ export function toPublicSettings(settings: Settings) {
     wakeWord: settings.wakeWord,
     update: settings.update,
     moderators: settings.moderators,
+    overlaySize: settings.overlaySize,
     apiKeys: {
       openai: { set: !!settings.apiKeys.openai, preview: maskKey(settings.apiKeys.openai) },
       anthropic: { set: !!settings.apiKeys.anthropic, preview: maskKey(settings.apiKeys.anthropic) },

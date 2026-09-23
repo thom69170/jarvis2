@@ -98,6 +98,8 @@ export interface Settings {
   wakeWord: WakeWordConfig;
   update: UpdateConfig;
   moderators: Moderator[];
+  /** Taille (en pixels) de l'avatar sur /overlay, reglable dans l'admin sans avoir a editer l'URL de la source OBS. */
+  overlaySize: number;
 }
 
 export interface ChatMessage {
@@ -167,4 +169,5 @@ export const DEFAULT_SETTINGS: Settings = {
     branch: "main",
   },
   moderators: [],
+  overlaySize: 260,
 };

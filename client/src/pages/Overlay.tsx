@@ -20,9 +20,12 @@ import { useJarvis } from "../hooks/useJarvis";
 export default function Overlay() {
   const [params] = useSearchParams();
   const transparent = params.get("transparent") === "1";
-  const size = Number(params.get("size")) || 260;
+  const sizeParam = Number(params.get("size"));
 
-  const { orbState, mouthLevelRef, screenShared, shareScreen } = useJarvis("overlay");
+  const { orbState, mouthLevelRef, overlaySize, screenShared, shareScreen } = useJarvis("overlay");
+  // ?size=NNN dans l'URL de la source OBS reste prioritaire (reglage par scene/collection) ;
+  // sinon la taille par defaut vient de l'admin (Settings.overlaySize).
+  const size = sizeParam || overlaySize;
 
   return (
     <div

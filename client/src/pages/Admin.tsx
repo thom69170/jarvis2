@@ -246,6 +246,7 @@ export default function Admin() {
         wakeWord: settings.wakeWord,
         update: settings.update,
         moderators: settings.moderators,
+        overlaySize: settings.overlaySize,
         apiKeys,
       });
       setSettings(saved);
@@ -896,6 +897,29 @@ export default function Admin() {
         <p style={{ color: "var(--text-dim)", fontSize: 12, marginTop: 8, marginBottom: 0 }}>
           N'oublie pas de cliquer sur « Enregistrer » en bas de page pour sauvegarder.
         </p>
+      </Section>
+
+      <Section title="Taille de l'overlay (OBS)">
+        <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
+          Taille de la télé de Jarvis sur la page /overlay (celle que tu
+          ajoutes comme source navigateur dans OBS). Si l'URL de ta source
+          contient déjà <code>?size=</code>, ce réglage-là est ignoré au
+          profit de l'URL.
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <input
+            type="range"
+            min={80}
+            max={600}
+            step={10}
+            value={settings.overlaySize}
+            onChange={(e) => update({ overlaySize: Number(e.target.value) })}
+            style={{ flex: 1 }}
+          />
+          <span style={{ width: 64, textAlign: "right", color: "var(--cyan)" }}>
+            {settings.overlaySize}px
+          </span>
+        </div>
       </Section>
 
       <Section title="Modèles utilisés (avancé)">

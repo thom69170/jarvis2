@@ -120,6 +120,10 @@ app.put("/api/settings", (req, res) => {
       .filter((m: { name: string }) => m.name.length > 0);
   }
 
+  if (typeof body.overlaySize === "number" && Number.isFinite(body.overlaySize)) {
+    settings.overlaySize = Math.min(1200, Math.max(60, Math.round(body.overlaySize)));
+  }
+
   if (body.update) {
     if (typeof body.update.enabled === "boolean") {
       settings.update.enabled = body.update.enabled;

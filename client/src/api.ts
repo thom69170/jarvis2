@@ -61,6 +61,8 @@ export interface PublicSettings {
     branch: string;
   };
   moderators: Moderator[];
+  /** Taille (en pixels) de l'avatar sur /overlay — reglable dans l'admin, remplacee par ?size=NNN dans l'URL si present. */
+  overlaySize: number;
   apiKeys: {
     openai: KeyStatus;
     anthropic: KeyStatus;
@@ -105,6 +107,7 @@ export interface SettingsUpdate {
   wakeWord?: Partial<PublicSettings["wakeWord"]>;
   update?: Partial<PublicSettings["update"]>;
   moderators?: Moderator[];
+  overlaySize?: number;
   apiKeys?: Partial<Record<"openai" | "anthropic" | "gemini" | "elevenlabs", string>>;
   clearKeys?: Array<"openai" | "anthropic" | "gemini" | "elevenlabs">;
 }
