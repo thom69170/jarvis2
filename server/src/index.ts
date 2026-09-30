@@ -1,5 +1,8 @@
 import cors from "cors";
 import express from "express";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { MissingApiKeyError, generateReply } from "./chatEngine.js";
 import { deleteMemory, loadMemories } from "./memoryStore.js";
 import { loadSettings, saveSettings, toPublicSettings } from "./settingsStore.js";
@@ -338,6 +341,21 @@ app.delete("/api/memory/:id", (req, res) => {
   }
   res.json({ ok: true });
 });
+
+// Sert le build du client (client/dist) directement depuis ce process quand
+// il existe — permet de faire tourner tout Jarvis (front + back) en un seul
+// process Node, sans Docker ni process Vite separe (voir npm run build /
+// npm start, et start-sans-docker.bat a la racine). N'a aucun effet en mode Docker
+// (nginx sert le client separement) ni en dev (npm run dev, dist absent) :
+// simple no-op si le dossier n'existe pas encore.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const CLIENT_DIST = path.join(__dirname, "..", "..", "client", "dist");
+if (existsSync(CLIENT_DIST)) {
+  app.use(express.static(CLIENT_DIST));
+  app.get(/^\/(?!api\/).*/, (_req, res) => {
+    res.sendFile(path.join(CLIENT_DIST, "index.html"));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`J.A.R.V.I.S server ready on http://localhost:${PORT}`);

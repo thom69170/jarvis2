@@ -1,0 +1,159 @@
+====================================================
+GUIDE D'INSTALLATION DE JARVIS (SANS DOCKER)
+====================================================
+
+A utiliser si Docker Desktop pose problème sur cette machine (ne démarre
+pas, plante, ou se lance "une fois sur dix"). Cette version fait tourner
+Jarvis directement avec Node.js, sans Docker du tout.
+
+Contrepartie par rapport à la version Docker : les voix locales et
+gratuites Kokoro / Piper / Bark ne sont pas disponibles ici (elles ne
+sont distribuées que sous forme d'images Docker). Il reste dans tous
+les cas :
+  - la voix du navigateur (gratuite, un peu robotique)
+  - ElevenLabs ou OpenAI (voix très réalistes, nécessitent une clé API
+    payante à l'usage)
+
+Compte environ 15-20 minutes.
+
+
+ETAPE 1 : Installer Node.js
+------------------------------------
+1. Aller sur : https://nodejs.org/
+2. Télécharger la version "LTS" (recommandée) et lancer l'installeur.
+3. Laisser toutes les options par défaut cochées, terminer
+   l'installation.
+4. Redémarrer l'ordinateur une fois l'installation terminée.
+
+
+ETAPE 2 : Installer Ollama (le "cerveau" gratuit de Jarvis)
+------------------------------------
+1. Aller sur : https://ollama.com/download
+2. Télécharger et installer la version Windows (pas besoin de
+   virtualisation ni de BIOS à toucher, contrairement à Docker).
+3. Une fois installé, Ollama tourne automatiquement en arrière-plan
+   (une icône apparaît près de l'horloge, en bas à droite).
+4. Ouvrir PowerShell (taper "powershell" dans le menu Démarrer) et
+   taper :
+
+       ollama pull llama3
+
+   Ça télécharge le modèle de langage (environ 4,7 Go, gratuit).
+   Cette étape n'est à faire qu'UNE SEULE FOIS.
+
+Si tu préfères ne pas utiliser Ollama, tu peux ignorer cette étape et
+utiliser une clé API (OpenAI / Anthropic / Gemini) à la place, à
+renseigner plus tard dans le panneau d'administration de Jarvis.
+
+
+ETAPE 3 : Récupérer le projet Jarvis
+------------------------------------
+Pas besoin d'installer Git : le plus simple est de télécharger le
+projet directement en ZIP.
+
+1. Aller sur : https://github.com/thom69170/jarvis2
+2. Cliquer sur le bouton vert "Code" (en haut à droite de la liste de
+   fichiers), puis sur "Download ZIP".
+3. Une fois le ZIP téléchargé, l'extraire dans un dossier simple,
+   par exemple : C:\jarvis
+   (clic droit sur le fichier ZIP > "Extraire tout...")
+
+Attention : si l'extraction a créé un sous-dossier du genre
+"jarvis2-main", c'est CE sous-dossier qu'il faut utiliser (celui qui
+contient directement des fichiers comme "package.json" et
+"start-sans-docker.bat").
+
+
+ETAPE 4 : Lancer Jarvis
+------------------------------------
+Dans le dossier du projet (celui de l'étape 3), double-cliquer sur :
+
+    start-sans-docker.bat
+
+Une fenêtre noire s'ouvre et fait tout automatiquement : installation
+des dépendances (seulement la toute première fois, peut prendre
+quelques minutes), construction de Jarvis, puis démarrage. Un
+navigateur s'ouvre ensuite tout seul sur le panneau d'administration.
+
+Si Windows affiche un avertissement "Windows a protégé votre PC" au
+double-clic, cliquer sur "Informations complémentaires" puis "Exécuter
+quand même" (c'est un script du projet, pas un fichier téléchargé
+séparément).
+
+IMPORTANT : laisser cette fenêtre noire ouverte tant que Jarvis doit
+fonctionner (pendant tout le stream, par exemple). La fermer arrête
+Jarvis. Pour le relancer plus tard, re-double-cliquer sur
+"start-sans-docker.bat" (le démarrage sera beaucoup plus rapide, les
+dépendances étant déjà installées).
+
+
+ETAPE 5 : Ouvrir Jarvis
+------------------------------------
+Tout tourne maintenant sur un seul port, contrairement à la version
+Docker (pas de 5173 séparé) :
+
+  - http://localhost:4000/admin
+    -> le panneau de configuration (voix, personnalité, clé API
+       optionnelle, mot d'activation, push-to-talk...)
+
+  - http://localhost:4000/jarvis
+    -> la fenêtre pour parler à Jarvis et le tester
+
+  - http://localhost:4000/overlay?transparent=1
+    -> la version "visuel seul" à utiliser dans OBS (voir étape 6)
+
+
+ETAPE 6 (optionnel) : Ajouter Jarvis dans OBS
+------------------------------------
+1. Dans OBS, dans la liste des sources, cliquer sur le "+" puis
+   choisir "Source Navigateur" ("Browser Source").
+2. Lui donner un nom (ex: "Jarvis"), valider.
+3. Dans le champ URL, mettre :
+       http://localhost:4000/overlay?transparent=1
+4. Régler la largeur/hauteur souhaitées (ex: 400 x 400).
+5. Valider. L'avatar de Jarvis doit apparaître, sur fond transparent.
+
+Astuce : la taille de l'avatar est aussi réglable directement dans
+/admin (section "Taille de l'overlay"), sans avoir à toucher l'URL.
+
+
+EN CAS DE PROBLEME
+------------------------------------
+- Le double-clic sur start-sans-docker.bat ne fait rien ou se ferme
+  tout de suite :
+  Ouvrir PowerShell dans le dossier du projet (taper "powershell" dans
+  la barre d'adresse de l'Explorateur Windows) et taper :
+      .\start-sans-docker.bat
+  Le message d'erreur affiché indique généralement quoi corriger
+  (Node.js manquant, dépendance manquante...).
+
+- "Jarvis ne répond pas" avec Ollama sélectionné dans /admin :
+  Vérifier qu'Ollama tourne bien (icône près de l'horloge) et que le
+  modèle a été téléchargé (étape 2, "ollama pull llama3"). Sinon,
+  choisir une clé API (OpenAI / Anthropic / Gemini) à la place dans
+  /admin.
+
+- Un port est déjà utilisé (erreur au démarrage mentionnant le port
+  4000) :
+  Une autre application utilise déjà ce port. Fermer cette
+  application, ou définir un port différent avant de lancer le script
+  (variable d'environnement JARVIS_SERVER_PORT).
+
+- Les voix Kokoro / Piper / Bark ne sont pas disponibles :
+  Normal en mode sans Docker (voir en haut de ce guide) : utiliser la
+  voix du navigateur, ou ElevenLabs/OpenAI avec une clé API.
+
+
+METTRE A JOUR JARVIS PLUS TARD
+------------------------------------
+Le panneau /admin (section "Mises à jour") prévient automatiquement
+quand une nouvelle version est disponible sur GitHub.
+
+Pour mettre à jour : fermer la fenêtre noire de Jarvis si elle tourne
+encore, puis double-cliquer sur "update.bat" à la racine du projet. Il
+détecte automatiquement que cette installation tourne sans Docker et
+reconstruit avec npm au lieu de Docker. Une fois terminé, relancer
+"start-sans-docker.bat" comme d'habitude.
+
+(Le fichier de configuration server\data\settings.json et les modèles
+Ollama déjà téléchargés ne sont jamais touchés par une mise à jour.)

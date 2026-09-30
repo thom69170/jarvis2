@@ -156,6 +156,14 @@ EN CAS DE PROBLEME
   cette application, ou modifier les ports dans le fichier
   "docker-compose.yml" (partie "ports:").
 
+- Docker Desktop ne demarre pas de facon fiable (plante, se lance
+  "une fois sur dix", erreurs recurrentes au demarrage) :
+  Il existe une version de Jarvis qui tourne sans Docker du tout, en
+  Node.js natif. Voir le guide dedie :
+  GUIDE_INSTALLATION_SANS_DOCKER.txt (a la racine du projet). Seule
+  limite : les voix locales Kokoro/Piper/Bark n'y sont pas
+  disponibles (voix du navigateur ou ElevenLabs/OpenAI a la place).
+
 
 METTRE A JOUR JARVIS PLUS TARD
 ------------------------------------

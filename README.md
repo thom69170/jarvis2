@@ -46,6 +46,26 @@ Ouvre ensuite :
 Le [`tools/ptt-listener`](tools/ptt-listener) doit lui tourner nativement sur
 Windows, jamais dans Docker (voir plus bas).
 
+## Lancer sans Docker
+
+Si Docker pose problème sur une machine (ne démarre pas de façon fiable,
+plante, virtualisation désactivée...), Jarvis peut tourner entièrement en
+Node.js, sans Docker du tout. Voir le guide pas-à-pas dédié :
+[`GUIDE_INSTALLATION_SANS_DOCKER.txt`](GUIDE_INSTALLATION_SANS_DOCKER.txt).
+
+En résumé : installer [Node.js](https://nodejs.org/) et
+[Ollama](https://ollama.com/download) (tous deux natifs Windows, sans
+virtualisation), puis double-cliquer sur
+[`start-sans-docker.bat`](start-sans-docker.bat) — il installe les
+dépendances, construit le projet et démarre tout (backend + frontend) en un
+seul process sur `http://localhost:4000` (`/admin`, `/jarvis`, `/overlay`).
+`update.bat` détecte automatiquement ce mode et reconstruit avec npm au lieu
+de Docker.
+
+Seule limite : les voix locales Kokoro/Piper/Bark ne sont distribuées qu'en
+images Docker et ne sont donc pas disponibles ici — la voix du navigateur et
+ElevenLabs/OpenAI restent utilisables normalement.
+
 ## Mode développement (sans Docker)
 
 Utile pour modifier le code avec rechargement à chaud, plutôt que de
@@ -235,9 +255,10 @@ npm run build
 npm start
 ```
 
-Le serveur backend se lance alors seul ; sers le dossier `client/dist`
-généré avec le serveur statique de ton choix (ou ajoute un serveur statique
-dans `server/src/index.ts` si tu veux tout servir depuis un seul process).
+Construit le client et démarre le serveur, qui sert alors tout (API +
+client) depuis un seul process sur `http://localhost:4000` — c'est
+exactement ce que fait [`start-sans-docker.bat`](start-sans-docker.bat) (voir
+plus haut), qui automatise ces deux commandes.
 
 ## Vérification des mises à jour
 

@@ -55,6 +55,34 @@ Copy-Item -Path (Join-Path $extracted.FullName "*") -Destination $root -Recurse 
 Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
+
+# Cree par start-sans-docker.ps1 : signale que cette install tourne en
+# Node.js natif plutot que Docker, pour reconstruire avec le bon outil.
+$nativeMode = Test-Path (Join-Path $root ".native-mode")
+
+if ($nativeMode) {
+    Write-Host "Installation sans Docker detectee : reconstruction avec npm..." -ForegroundColor Cyan
+    npm install
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "npm install a echoue. Verifie ta connexion internet et reessaie." -ForegroundColor Red
+        Read-Host "Appuie sur Entree pour fermer"
+        exit 1
+    }
+    npm run build
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "La construction a echoue (voir le detail ci-dessus)." -ForegroundColor Red
+        Read-Host "Appuie sur Entree pour fermer"
+        exit 1
+    }
+
+    Write-Host ""
+    Write-Host "=== Mise a jour terminee ! ===" -ForegroundColor Green
+    Write-Host "Ferme la fenetre Jarvis actuelle (si elle tourne encore) puis"
+    Write-Host "relance start-sans-docker.bat pour redemarrer avec le nouveau code."
+    Read-Host "Appuie sur Entree pour fermer"
+    exit 0
+}
+
 $dockerOk = $true
 try {
     docker compose version | Out-Null
@@ -67,6 +95,9 @@ if (-not $dockerOk) {
     Write-Host "Lance Docker Desktop puis relance ce script, ou tape toi-meme :"
     Write-Host "  docker compose build" -ForegroundColor Cyan
     Write-Host "  docker compose up -d" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Des soucis recurrents avec Docker ? Lance start-sans-docker.bat a la place :" -ForegroundColor Yellow
+    Write-Host "  ca fait tourner Jarvis sans Docker (Node.js + Ollama installes nativement)." -ForegroundColor Yellow
     Read-Host "Appuie sur Entree pour fermer"
     exit 0
 }

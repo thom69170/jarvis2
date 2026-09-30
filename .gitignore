@@ -4,6 +4,7 @@ dist/
 build/
 .env
 .env.local
+.native-mode
 server/data/settings.json
 server/data/memory.json
 *.log
