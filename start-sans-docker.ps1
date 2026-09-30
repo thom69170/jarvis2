@@ -146,6 +146,19 @@ if ($voicesStarted) {
     Write-Host "Docker indisponible : voix locales desactivees pour cette session (voix du navigateur ou ElevenLabs/OpenAI a la place, reglable dans /admin)." -ForegroundColor Yellow
 }
 
+# --- Verification prealable du port -------------------------------------
+# Evite de demarrer une boucle de redemarrage infinie pour rien si le port
+# est deja pris (ex: la version Docker de Jarvis tourne encore, ou une autre
+# application utilise ce port) : mieux vaut un message clair et immediat.
+$jarvisPort = if ($env:JARVIS_SERVER_PORT) { $env:JARVIS_SERVER_PORT } else { "4000" }
+$portBusy = Get-NetTCPConnection -LocalPort $jarvisPort -State Listen -ErrorAction SilentlyContinue
+if ($portBusy) {
+    Write-Host "Le port $jarvisPort est deja utilise par une autre application (peut-etre la version Docker de Jarvis encore lancee ?)." -ForegroundColor Red
+    Write-Host "Ferme cette application (ou fais 'docker compose stop' si Docker tourne encore), puis relance ce script." -ForegroundColor Yellow
+    Read-Host "Appuie sur Entree pour fermer"
+    exit 1
+}
+
 # --- Demarrage + surveillance -------------------------------------------
 # Redemarre automatiquement Jarvis s'il plante ou se fige (ne repond plus a
 # /api/health), et envoie un rapport par email si REPORT_SMTP_HOST est
@@ -200,6 +213,10 @@ while ($true) {
     }
 
     if (-not $killedForFreeze) {
+        # .Refresh() evite de lire un ExitCode pas encore mis a jour quand le
+        # process vient de se terminer (sinon souvent vide juste apres un
+        # crash tres rapide, ex: port deja utilise).
+        $proc.Refresh()
         Write-Host "Le serveur Jarvis s'est arrete (code $($proc.ExitCode))." -ForegroundColor Yellow
     }
 
