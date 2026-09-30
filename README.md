@@ -62,12 +62,12 @@ seul process sur `http://localhost:4000` (`/admin`, `/jarvis`, `/overlay`).
 `update.bat` détecte automatiquement ce mode et reconstruit avec npm au lieu
 de Docker.
 
-`start-sans-docker.bat` tente quand même de démarrer Kokoro et Piper (les
-voix locales) via Docker en tâche de fond, avec un délai limité : si Docker
-est présent et fonctionne, ces voix deviennent utilisables dans `/admin` ;
-sinon (Docker absent ou en échec), Jarvis démarre quand même normalement
-avec la voix du navigateur ou ElevenLabs/OpenAI. Bark n'est pas inclus (GPU
-requis, trop lourd pour ce scénario).
+Ce mode n'utilise Docker nulle part, y compris pour les voix : Kokoro/Piper/
+Bark ne sont pas disponibles en local ici (ce sont des images Docker). Une
+voix locale et gratuite reste possible en hébergeant Piper ailleurs (par
+exemple sur un petit VPS derrière un reverse proxy avec authentification) et
+en renseignant son adresse + identifiant/mot de passe dans `/admin` — sinon,
+voix du navigateur ou ElevenLabs/OpenAI.
 
 Ce mode redémarre aussi automatiquement Jarvis en cas de plantage ou de gel
 (le serveur ne répond plus), et peut envoyer un email de diagnostic à cette

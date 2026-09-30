@@ -95,66 +95,15 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# --- Voix locales (Kokoro/Piper) via Docker, facultatif -------------------
-# Docker n'est utilise ici QUE pour ces deux petits conteneurs de voix, pas
-# pour Jarvis lui-meme. Tente avec un delai limite : si Docker n'est pas
-# installe ou ne demarre pas (ce qui peut arriver sur cette machine), on
-# continue simplement sans les voix locales (voix du navigateur ou
-# ElevenLabs/OpenAI a la place) plutot que de bloquer le demarrage.
-function Try-StartDockerVoices {
-    param([string]$RepoRoot, [int]$TimeoutSeconds = 20)
-    try {
-        $psi = New-Object System.Diagnostics.ProcessStartInfo
-        $psi.FileName = "docker"
-        $psi.Arguments = "compose up -d kokoro piper"
-        $psi.WorkingDirectory = $RepoRoot
-        $psi.RedirectStandardOutput = $true
-        $psi.RedirectStandardError = $true
-        $psi.UseShellExecute = $false
-        $proc = [System.Diagnostics.Process]::Start($psi)
-        if (-not $proc.WaitForExit($TimeoutSeconds * 1000)) {
-            try { $proc.Kill() } catch {}
-            return $false
-        }
-        return ($proc.ExitCode -eq 0)
-    } catch {
-        return $false
-    }
-}
-
-Write-Host "Tentative de demarrage des voix locales Kokoro/Piper via Docker (facultatif)..." -ForegroundColor Cyan
-$voicesStarted = Try-StartDockerVoices -RepoRoot $root
-$settingsPath = Join-Path $root "server\data\settings.json"
-if ($voicesStarted) {
-    Write-Host "Voix locales Kokoro/Piper disponibles." -ForegroundColor Green
-    # Uniquement sur une toute premiere installation (pas de settings.json
-    # existant) : pre-remplit une voix locale par defaut aux bonnes adresses
-    # (ports publies par docker-compose.yml, differents de ceux utilises en
-    # mode Docker complet ou le serveur tourne DANS le reseau Docker).
-    if (-not (Test-Path $settingsPath)) {
-        $seed = @{
-            tts = @{
-                provider = "piper"
-                piper    = @{ baseUrl = "http://localhost:5001/v1"; voice = "fr_FR-siwis-medium" }
-                kokoro   = @{ baseUrl = "http://localhost:8880/v1"; voice = "ff_siwis" }
-            }
-        }
-        New-Item -ItemType Directory -Path (Join-Path $root "server\data") -Force | Out-Null
-        $seed | ConvertTo-Json -Depth 5 | Set-Content -Path $settingsPath -Encoding utf8
-    }
-} else {
-    Write-Host "Docker indisponible : voix locales desactivees pour cette session (voix du navigateur ou ElevenLabs/OpenAI a la place, reglable dans /admin)." -ForegroundColor Yellow
-}
-
 # --- Verification prealable du port -------------------------------------
 # Evite de demarrer une boucle de redemarrage infinie pour rien si le port
-# est deja pris (ex: la version Docker de Jarvis tourne encore, ou une autre
-# application utilise ce port) : mieux vaut un message clair et immediat.
+# est deja pris par une autre application : mieux vaut un message clair et
+# immediat.
 $jarvisPort = if ($env:JARVIS_SERVER_PORT) { $env:JARVIS_SERVER_PORT } else { "4000" }
 $portBusy = Get-NetTCPConnection -LocalPort $jarvisPort -State Listen -ErrorAction SilentlyContinue
 if ($portBusy) {
-    Write-Host "Le port $jarvisPort est deja utilise par une autre application (peut-etre la version Docker de Jarvis encore lancee ?)." -ForegroundColor Red
-    Write-Host "Ferme cette application (ou fais 'docker compose stop' si Docker tourne encore), puis relance ce script." -ForegroundColor Yellow
+    Write-Host "Le port $jarvisPort est deja utilise par une autre application." -ForegroundColor Red
+    Write-Host "Ferme cette application, puis relance ce script." -ForegroundColor Yellow
     Read-Host "Appuie sur Entree pour fermer"
     exit 1
 }

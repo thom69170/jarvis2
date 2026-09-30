@@ -4,16 +4,18 @@ GUIDE D'INSTALLATION DE JARVIS (SANS DOCKER)
 
 A utiliser si Docker Desktop pose problème sur cette machine (ne démarre
 pas, plante, ou se lance "une fois sur dix"). Cette version fait tourner
-Jarvis directement avec Node.js, sans dépendre de Docker pour l'essentiel.
+Jarvis directement avec Node.js, sans Docker du tout - y compris pour les
+voix.
 
-Si Docker est quand même présent et fonctionne au moment du lancement,
-le script essaie en plus (avec un délai limité, sans bloquer si ça
-échoue) de démarrer Kokoro et Piper - les voix locales gratuites - via
-Docker. S'il n'y arrive pas (ou si Docker n'est pas installé), Jarvis
-démarre quand même normalement, avec :
+Contrepartie : les voix locales et gratuites Kokoro / Piper / Bark ne sont
+pas disponibles ici (ce sont des images Docker). Il reste dans tous les
+cas :
   - la voix du navigateur (gratuite, un peu robotique)
   - ElevenLabs ou OpenAI (voix très réalistes, nécessitent une clé API
     payante à l'usage)
+  - Piper hébergé ailleurs (ex: un petit VPS), en renseignant son
+    adresse et un identifiant/mot de passe dans /admin, section
+    "Voix de Jarvis"
 
 Ce mode redémarre aussi automatiquement Jarvis s'il plante ou se fige,
 et peut avertir discrètement par email en cas de problème (fonction
@@ -144,12 +146,11 @@ EN CAS DE PROBLEME
   application, ou définir un port différent avant de lancer le script
   (variable d'environnement JARVIS_SERVER_PORT).
 
-- Les voix Kokoro / Piper ne sont pas disponibles :
-  Soit Docker n'est pas installé sur cette machine, soit il n'a pas
-  réussi à démarrer à temps au lancement de Jarvis (voir le message
-  affiché dans la fenêtre noire au démarrage). Dans les deux cas,
-  utiliser la voix du navigateur, ou ElevenLabs/OpenAI avec une clé
-  API. Bark n'est de toute façon pas proposé ici (GPU requis).
+- Les voix Kokoro / Piper / Bark ne sont pas disponibles :
+  Normal dans ce mode (ce sont des images Docker, voir en haut de ce
+  guide) : utiliser la voix du navigateur, ElevenLabs/OpenAI avec une
+  clé API, ou un serveur Piper hébergé ailleurs (adresse + identifiant/
+  mot de passe dans /admin).
 
 - Jarvis redémarre tout seul en boucle :
   Un plantage répété (voir "jarvis-server.err.log" à la racine du
