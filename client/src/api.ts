@@ -18,6 +18,9 @@ export interface LocalTtsConfig {
   voice: string;
   /** Numeric speaker ID for a multi-speaker voice (e.g. Piper's fr_FR-mls-medium, 125 speakers) — ignored otherwise. */
   speaker?: number;
+  /** Authentification HTTP Basic optionnelle — utile quand le serveur n'est plus en local (ex: heberge sur un VPS). */
+  authUser?: string;
+  authPass?: string;
 }
 
 export interface PublicSettings {

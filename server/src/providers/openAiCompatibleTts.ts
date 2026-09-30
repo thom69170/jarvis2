@@ -14,13 +14,20 @@ export async function generateOpenAiCompatibleSpeech(params: {
   serviceLabel: string;
   /** Numeric speaker ID for a multi-speaker voice (Piper's fr_FR-mls-medium) — ignored by servers/voices that don't use it. */
   speaker?: number;
+  /** Authentification HTTP Basic optionnelle (voir LocalTtsConfig) — ignoree si l'un des deux est absent. */
+  authUser?: string;
+  authPass?: string;
 }): Promise<SpeechResult> {
   const url = `${params.baseUrl.replace(/\/$/, "")}/audio/speech`;
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (params.authUser && params.authPass) {
+    headers.Authorization = `Basic ${Buffer.from(`${params.authUser}:${params.authPass}`).toString("base64")}`;
+  }
   let response: Response;
   try {
     response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({
         model: params.serviceLabel.toLowerCase(),
         voice: params.voice,

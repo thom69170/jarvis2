@@ -554,6 +554,27 @@ export default function Admin() {
                 onChange={(e) => update({ tts: { ...settings.tts, piper: { ...settings.tts.piper, baseUrl: e.target.value } } })}
               />
             </div>
+            <p style={{ color: "var(--text-dim)", fontSize: 12, marginTop: -4, marginBottom: 8 }}>
+              Authentification (facultatif — uniquement si ce serveur Piper est exposé sur
+              internet, ex: hébergé sur un VPS, plutôt qu'en local) :
+            </p>
+            <div style={rowStyle}>
+              <label style={{ minWidth: 160 }}>Identifiant</label>
+              <input
+                style={inputStyle}
+                value={settings.tts.piper.authUser ?? ""}
+                onChange={(e) => update({ tts: { ...settings.tts, piper: { ...settings.tts.piper, authUser: e.target.value } } })}
+              />
+            </div>
+            <div style={rowStyle}>
+              <label style={{ minWidth: 160 }}>Mot de passe</label>
+              <input
+                type="password"
+                style={inputStyle}
+                value={settings.tts.piper.authPass ?? ""}
+                onChange={(e) => update({ tts: { ...settings.tts, piper: { ...settings.tts.piper, authPass: e.target.value } } })}
+              />
+            </div>
             <div style={rowStyle}>
               <label style={{ minWidth: 160 }}>Voix</label>
               <select

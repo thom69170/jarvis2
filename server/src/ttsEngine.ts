@@ -44,6 +44,8 @@ export async function generateSpeech(settings: Settings, text: string): Promise<
         baseUrl: tts.kokoro.baseUrl,
         voice: tts.kokoro.voice,
         serviceLabel: "Kokoro",
+        authUser: tts.kokoro.authUser,
+        authPass: tts.kokoro.authPass,
         text,
       });
     }
@@ -53,6 +55,8 @@ export async function generateSpeech(settings: Settings, text: string): Promise<
         voice: tts.piper.voice,
         speaker: tts.piper.speaker,
         serviceLabel: "Piper",
+        authUser: tts.piper.authUser,
+        authPass: tts.piper.authPass,
         text,
       });
     }
@@ -61,6 +65,8 @@ export async function generateSpeech(settings: Settings, text: string): Promise<
         baseUrl: tts.bark.baseUrl,
         voice: tts.bark.voice,
         serviceLabel: "Bark",
+        authUser: tts.bark.authUser,
+        authPass: tts.bark.authPass,
         text,
       });
     }
