@@ -85,7 +85,12 @@ if ($nativeMode) {
 
 $dockerOk = $true
 try {
-    docker compose version | Out-Null
+    # "docker compose version" ne verifie que le CLI, pas que le daemon
+    # repond ; "docker info" contacte vraiment le daemon et echoue tout de
+    # suite si Docker Desktop n'est pas lance (au lieu d'echouer plus tard,
+    # en plein milieu de "docker compose build").
+    docker info *> $null
+    if ($LASTEXITCODE -ne 0) { $dockerOk = $false }
 } catch {
     $dockerOk = $false
 }
@@ -106,6 +111,9 @@ Write-Host "Reconstruction des images Docker (peut prendre quelques minutes)..."
 docker compose build
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Le build Docker a echoue. Verifie que Docker Desktop est bien lance et reessaie." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Des soucis recurrents avec Docker ? Lance start-sans-docker.bat a la place :" -ForegroundColor Yellow
+    Write-Host "  ca fait tourner Jarvis sans Docker (Node.js + Ollama installes nativement)." -ForegroundColor Yellow
     Read-Host "Appuie sur Entree pour fermer"
     exit 1
 }
