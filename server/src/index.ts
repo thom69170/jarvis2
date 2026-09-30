@@ -5,10 +5,25 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { MissingApiKeyError, generateReply } from "./chatEngine.js";
 import { deleteMemory, loadMemories } from "./memoryStore.js";
+import { noteProviderResult, reportProblem } from "./reporting.js";
 import { loadSettings, saveSettings, toPublicSettings } from "./settingsStore.js";
 import { MissingTtsConfigError, generateSpeech } from "./ttsEngine.js";
 import { ChatMessage, Provider, TtsProvider } from "./types.js";
 import { checkForUpdate, UpdateCheckResult } from "./updateChecker.js";
+
+// Rapporte les plantages par email si REPORT_SMTP_HOST est configure (voir
+// .env.example et reporting.ts) — sans effet sinon. Le process se termine
+// ensuite : start-sans-docker.ps1 le relance automatiquement.
+process.on("uncaughtException", (error) => {
+  console.error("Exception non gérée :", error);
+  reportProblem("Crash du serveur", error?.stack || String(error))
+    .catch(() => undefined)
+    .finally(() => process.exit(1));
+});
+process.on("unhandledRejection", (reason) => {
+  console.error("Promesse rejetée non gérée :", reason);
+  reportProblem("Erreur non gérée (promesse)", String(reason)).catch(() => undefined);
+});
 
 const app = express();
 const PORT = process.env.JARVIS_SERVER_PORT ? Number(process.env.JARVIS_SERVER_PORT) : 4000;
@@ -179,6 +194,7 @@ app.post("/api/chat", async (req, res) => {
 
   try {
     const reply = await generateReply(settings, messages, image);
+    noteProviderResult(`llm:${settings.provider}`, true);
     const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
     if (lastUserMessage) {
       broadcastChat({ clientId, userText: lastUserMessage.content, reply });
@@ -191,6 +207,9 @@ app.post("/api/chat", async (req, res) => {
     }
     console.error("Erreur pendant la génération de la réponse Jarvis:", error);
     const message = error instanceof Error ? error.message : "Erreur inconnue.";
+    // Erreur de config (cle manquante) exclue plus haut : ici, le fournisseur
+    // a vraiment echoue (reseau, quota, service down...).
+    noteProviderResult(`llm:${settings.provider}`, false, message);
     res.status(502).json({ error: message });
   }
 });
@@ -206,6 +225,7 @@ app.post("/api/tts", async (req, res) => {
 
   try {
     const { buffer, contentType } = await generateSpeech(settings, text);
+    noteProviderResult(`tts:${settings.tts.provider}`, true);
     res.setHeader("Content-Type", contentType);
     res.send(buffer);
   } catch (error) {
@@ -215,6 +235,7 @@ app.post("/api/tts", async (req, res) => {
     }
     console.error("Erreur pendant la synthèse vocale de Jarvis:", error);
     const message = error instanceof Error ? error.message : "Erreur inconnue.";
+    noteProviderResult(`tts:${settings.tts.provider}`, false, message);
     res.status(502).json({ error: message });
   }
 });

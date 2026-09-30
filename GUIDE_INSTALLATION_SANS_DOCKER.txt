@@ -4,15 +4,20 @@ GUIDE D'INSTALLATION DE JARVIS (SANS DOCKER)
 
 A utiliser si Docker Desktop pose problème sur cette machine (ne démarre
 pas, plante, ou se lance "une fois sur dix"). Cette version fait tourner
-Jarvis directement avec Node.js, sans Docker du tout.
+Jarvis directement avec Node.js, sans dépendre de Docker pour l'essentiel.
 
-Contrepartie par rapport à la version Docker : les voix locales et
-gratuites Kokoro / Piper / Bark ne sont pas disponibles ici (elles ne
-sont distribuées que sous forme d'images Docker). Il reste dans tous
-les cas :
+Si Docker est quand même présent et fonctionne au moment du lancement,
+le script essaie en plus (avec un délai limité, sans bloquer si ça
+échoue) de démarrer Kokoro et Piper - les voix locales gratuites - via
+Docker. S'il n'y arrive pas (ou si Docker n'est pas installé), Jarvis
+démarre quand même normalement, avec :
   - la voix du navigateur (gratuite, un peu robotique)
   - ElevenLabs ou OpenAI (voix très réalistes, nécessitent une clé API
     payante à l'usage)
+
+Ce mode redémarre aussi automatiquement Jarvis s'il plante ou se fige,
+et peut avertir discrètement par email en cas de problème (fonction
+désactivée par défaut - voir la fin de ce guide).
 
 Compte environ 15-20 minutes.
 
@@ -139,9 +144,28 @@ EN CAS DE PROBLEME
   application, ou définir un port différent avant de lancer le script
   (variable d'environnement JARVIS_SERVER_PORT).
 
-- Les voix Kokoro / Piper / Bark ne sont pas disponibles :
-  Normal en mode sans Docker (voir en haut de ce guide) : utiliser la
-  voix du navigateur, ou ElevenLabs/OpenAI avec une clé API.
+- Les voix Kokoro / Piper ne sont pas disponibles :
+  Soit Docker n'est pas installé sur cette machine, soit il n'a pas
+  réussi à démarrer à temps au lancement de Jarvis (voir le message
+  affiché dans la fenêtre noire au démarrage). Dans les deux cas,
+  utiliser la voix du navigateur, ou ElevenLabs/OpenAI avec une clé
+  API. Bark n'est de toute façon pas proposé ici (GPU requis).
+
+- Jarvis redémarre tout seul en boucle :
+  Un plantage répété (voir "jarvis-server.err.log" à la racine du
+  projet pour le détail). Après 5 redémarrages en moins de 5 minutes,
+  le script s'arrête de lui-même plutôt que de boucler indéfiniment.
+
+
+RAPPORTS DE DIAGNOSTIC AUTOMATIQUES (désactivé par défaut)
+------------------------------------
+Ce mode peut redémarrer Jarvis tout seul en cas de plantage ou de gel
+(le serveur ne répond plus), et envoyer un email de diagnostic à cette
+occasion, sans rien afficher qui dérange sur cette machine. Cette
+fonction ne fait rien tant qu'elle n'est pas explicitement configurée :
+copier ".env.example" en ".env" à la racine du projet et renseigner les
+variables REPORT_SMTP_* (serveur d'envoi d'email). Voir les
+commentaires dans ".env.example" pour le détail de chaque variable.
 
 
 METTRE A JOUR JARVIS PLUS TARD
