@@ -6,6 +6,65 @@ Set-Location $root
 Write-Host "=== J.A.R.V.I.S (mode sans Docker) ===" -ForegroundColor Cyan
 Write-Host ""
 
+# --- Job Windows pour ne jamais laisser Jarvis tourner en fantome ---------
+# Start-Process lance node comme un processus totalement independant : fermer
+# la fenetre de ce script (croix, Ctrl+C, plantage...) ne l'arrete PAS tout
+# seul, il continue de tourner cache et bloque le port au prochain lancement.
+# Un "Job Object" Windows avec KILL_ON_JOB_CLOSE garantit que Windows tue
+# node automatiquement des que CE process PowerShell se termine, quelle que
+# soit la maniere dont il se termine.
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public static class JarvisJobObject {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct JOBOBJECT_BASIC_LIMIT_INFORMATION {
+        public Int64 PerProcessUserTimeLimit;
+        public Int64 PerJobUserTimeLimit;
+        public UInt32 LimitFlags;
+        public UIntPtr MinimumWorkingSetSize;
+        public UIntPtr MaximumWorkingSetSize;
+        public UInt32 ActiveProcessLimit;
+        public UIntPtr Affinity;
+        public UInt32 PriorityClass;
+        public UInt32 SchedulingClass;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct IO_COUNTERS {
+        public UInt64 ReadOperationCount, WriteOperationCount, OtherOperationCount;
+        public UInt64 ReadTransferCount, WriteTransferCount, OtherTransferCount;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct JOBOBJECT_EXTENDED_LIMIT_INFORMATION {
+        public JOBOBJECT_BASIC_LIMIT_INFORMATION BasicLimitInformation;
+        public IO_COUNTERS IoInfo;
+        public UIntPtr ProcessMemoryLimit, JobMemoryLimit, PeakProcessMemoryUsed, PeakJobMemoryUsed;
+    }
+    const int JobObjectExtendedLimitInformation = 9;
+    const UInt32 JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE = 0x2000;
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    static extern IntPtr CreateJobObject(IntPtr a, string lpName);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern bool SetInformationJobObject(IntPtr hJob, int infoClass, IntPtr lpInfo, uint length);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool AssignProcessToJobObject(IntPtr hJob, IntPtr hProcess);
+
+    public static IntPtr CreateKillOnCloseJob() {
+        IntPtr hJob = CreateJobObject(IntPtr.Zero, null);
+        var info = new JOBOBJECT_EXTENDED_LIMIT_INFORMATION();
+        info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        int length = Marshal.SizeOf(typeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION));
+        IntPtr ptr = Marshal.AllocHGlobal(length);
+        Marshal.StructureToPtr(info, ptr, false);
+        SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, ptr, (uint)length);
+        Marshal.FreeHGlobal(ptr);
+        return hJob;
+    }
+}
+"@
+$jarvisJobHandle = [JarvisJobObject]::CreateKillOnCloseJob()
+
 function Test-Command($name) {
     return [bool](Get-Command $name -ErrorAction SilentlyContinue)
 }
@@ -138,6 +197,7 @@ $restartTimestamps = @()
 while ($true) {
     $proc = Start-Process -FilePath "node" -ArgumentList "dist/index.js" -WorkingDirectory $serverDir `
         -PassThru -WindowStyle Hidden -RedirectStandardOutput $outLog -RedirectStandardError $errLog
+    [JarvisJobObject]::AssignProcessToJobObject($jarvisJobHandle, $proc.Handle) | Out-Null
 
     $consecutiveHealthFailures = 0
     $killedForFreeze = $false
